@@ -65,6 +65,18 @@ export default function ListingDetails({ id, initialData }) {
   
     const handleProposeTrade = () => {
       console.log('Propose Trade button pressed');
+      if (!user) {
+        router.push('/login');
+        return;
+      }
+
+      if (!listing?.ownerID) {
+        setError("Listing owner not found");
+        return;
+      }
+
+      const targetUserID = listing.ownerID.toString();
+      router.push(`/trade/select-item?targetItem=${id}&targetUserID=${targetUserID}`);
     };
   
     const handleReport = () => {
