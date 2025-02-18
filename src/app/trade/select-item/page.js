@@ -1,63 +1,69 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import { useAuth } from "../../../../context/AuthContext"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { useAuth } from "../../../../context/AuthContext";
+import { useSearchParams, useRouter } from 'next/navigation';
 
-export default function SelectItem() {
+// Trade Item Selection Page
+// This page shows the user's listings to select an item for trade
+// Will be rendered when "Propose Trade" is clicked from a listing
 
-    const [selectedItem, setSelectedItem] = useState(null);
-    const [userInfo, setUserInfo] = useState(null);
-    const [items, setItems] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const searchParams = useSearchParams();
+export default function SelectTradeItemPage() {
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [userInfo, setUserInfo] = useState(null);
+  const [items, setItems] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { user } = useAuth();
+  const searchParams = useSearchParams();
+  const router = useRouter();
 
-    const { user } = useAuth();
+  useEffect(() => {
+    if (!user || !user._id) return;
 
-    const router = useRouter();
-    // Gets the user listings
-    useEffect(() => {
-        if (!user || !user._id) {
-            return;
+    async function fetchUserData() {
+      try {
+        const res = await fetch(`/api/user/dashboard-data?userId=${user._id}`);
+        if (!res.ok) {
+          throw new Error('Failed to fetch user data');
         }
-
-        async function fetchUserData() {
-            try {
-                // Fetch the user listings
-                const res = await fetch(`/api/user/dashboard-data?userId=${user._id}`);
-                if (!res.ok){
-                    throw new Error("Failed to fetch user data");
-                }
-
-                const data = await res.json();
-                setUserInfo(data.user);
-                setItems(data.items);
-                console.log(data);
-            } catch (error) {
-                console.error("Error fetching user data:", error);
-            } finally {
-                setIsLoading(false);
-            }
-        }
-
-        fetchUserData();
-    }, [user]);
-
-    const handleSelectItem = (item) => {
-        setSelectedItem(item);
+        const data = await res.json();
+        setUserInfo(data.user);
+        setItems(data.items);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      } finally {
+        setIsLoading(false);
+      }
     }
 
-    if (isLoading) {
-        return <div>Loading...</div>
-    }
+    fetchUserData();
+  }, [user]);
 
+  useEffect(() => {
+    console.log('Select-item page params:', {
+      targetItem: searchParams.get('targetItem'),
+      targetUserId: searchParams.get('targetUserId')
+    });
+  }, [searchParams]);
+
+  const handleSelectItem = (item) => {
+    setSelectedItem(item._id);
+  };
+
+  if (isLoading) {
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 py-12 px-4">
-           <div className="max-w-6xl mx-auto">
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-purple-500"></div>
+      </div>
+    );
+  }
 
-            { /* User Profile section */}
-            
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 py-12 px-4">
+      <div className="max-w-6xl mx-auto">
+        {/* User Profile Section */}
+
         <div className="bg-gray-800/50 backdrop-blur-lg rounded-xl p-6 mb-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -68,7 +74,7 @@ export default function SelectItem() {
                   className="w-full h-full object-cover"
                 />
               </div>
-              
+
               <div>
                 <h2 className="text-xl font-bold text-white">{userInfo?.username}</h2>
                 <div className="flex items-center gap-2">
@@ -94,13 +100,17 @@ export default function SelectItem() {
           </div>
         </div>
 
-        { /* Create a new listing button */}
-        <Link href="/listing/create" className="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded">
-            Create new Listing
+
+        {/* Create New Listing Button */}
+        <Link 
+          href="/listing/create"
+          className="block w-full bg-gray-800/50 hover:bg-gray-700/50 text-white py-4 rounded-xl mb-8 font-semibold text-lg backdrop-blur-lg text-center"
+        >
+          Create A New Listing
         </Link>
 
-           {/* Listed Items */}
-           <h3 className="text-xl font-semibold text-white mb-4">Listed Items</h3>
+        {/* Listed Items */}
+        <h3 className="text-xl font-semibold text-white mb-4">Listed Items</h3>
         <div className="space-y-4">
           {items.map((item) => (
             <div 
@@ -152,6 +162,12 @@ export default function SelectItem() {
                 const targetItem = searchParams.get('targetItem');
                 const targetUserId = searchParams.get('targetUserId');
                 
+                console.log('Continuing to summary with:', {
+                  selectedItem,
+                  targetItem,
+                  targetUserId
+                });
+                
                 router.push(`/trade/summary?selectedItem=${selectedItem}&targetItem=${targetItem}&targetUserId=${targetUserId}`);
               }}
               className="px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-lg font-medium shadow-lg transform hover:-translate-y-0.5 transition-all"
@@ -160,7 +176,10 @@ export default function SelectItem() {
             </button>
           </div>
         )}
-           </div>
-        </div>
-    )
-}
+
+
+        
+      </div>
+    </div>
+  );
+} 

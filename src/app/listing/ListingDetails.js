@@ -75,8 +75,8 @@ export default function ListingDetails({ id, initialData }) {
         return;
       }
 
-      const targetUserID = listing.ownerID.toString();
-      router.push(`/trade/select-item?targetItem=${id}&targetUserID=${targetUserID}`);
+      const targetUserId = listing.ownerID.toString();
+      router.push(`/trade/select-item?targetItem=${id}&targetUserId=${targetUserId}`);
     };
   
     const handleReport = () => {
