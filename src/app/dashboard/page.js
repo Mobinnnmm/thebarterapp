@@ -37,13 +37,64 @@ export default function DashboardPage() {
     fetchDashboardData();
   }, [user]);
 
-  const handleLogout = () => {
-    logout();
+  const handleDeleteAccount = async () => {
+    if (!window.confirm("Are you sure you want to delete your account?")) return;
+
+    try {
+      const res = await fetch('/api/user/deleteProfile', {
+        method: "DELETE",
+        headers: {
+          "content-type": "application/json",
+          Authorization: `Bearer ${user.token}`,
+        },
+        body: JSON.stringify({ userID: user._id }),
+      });
+
+      if(!res.ok) {
+        const { error } = await res.json();
+        throw new Error(error || 'Failed to delete profile');
+
+      }
+    } catch (error) {
+      console.error('Error deleting Profile: ', error);
+      setErrorMsg(error.message || "Could not delete profile.");
+    }
+
     router.push('/');
   };
 
   const handleCreateListing = () => {
     router.push('/listing/create');
+  };
+
+  const handleEdit = (listingId) => {
+    router.push(`/listing/update/${listingId}`);
+  }
+
+  const handleDelete = async (listingId) => {
+    if (!window.confirm("Are you sure you want to delete this item?")) return;
+    
+    try {
+      const res = await fetch("/api/listing/delete", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user.token}`,
+        },
+        body: JSON.stringify({ listingID: listingId }),
+      });
+  
+      if (!res.ok) {
+        const { error } = await res.json();
+        throw new Error(error || "Failed to delete item");
+      }
+  
+      // Remove deleted item from state
+      setItems((prevItems) => prevItems.filter((item) => item._id !== listingId));
+    } catch (error) {
+      console.error("Error deleting item:", error);
+      setErrorMsg(error.message || "Could not delete item.");
+    }
   };
 
   if (!user) {
@@ -109,10 +160,10 @@ export default function DashboardPage() {
                 {userInfo?.aboutMe ? "Update Profile" : "Setup Profile"}
               </Link>
               <button
-                onClick={handleLogout}
+                onClick={handleDeleteAccount}
                 className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg transition-all transform hover:-translate-y-0.5"
               >
-                Logout
+                Delete Account
               </button>
             </div>
           </div>
@@ -202,6 +253,7 @@ export default function DashboardPage() {
                   className="bg-gray-700/50 rounded-xl shadow-xl overflow-hidden hover:transform hover:scale-[1.02] transition-all"
                 >
                   {item.images && item.images[0] ? (
+                    // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={item.images[0]}
                       alt={item.title}
@@ -217,10 +269,14 @@ export default function DashboardPage() {
                     <h4 className="text-xl font-semibold text-indigo-400 mb-2">{item.title}</h4>
                     <p className="text-gray-300 mb-4 line-clamp-2">{item.description}</p>
                     <div className="flex space-x-2">
-                      <button className="flex-1 bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg transition-all transform hover:-translate-y-0.5">
+                      <button
+                        onClick={() => handleEdit(item._id)}
+                        className="flex-1 bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg transition-all transform hover:-translate-y-0.5">
                         Edit
                       </button>
-                      <button className="flex-1 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-all transform hover:-translate-y-0.5">
+                      <button
+                        onClick={() => handleDelete(item._id)}
+                        className="flex-1 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-all transform hover:-translate-y-0.5">
                         Delete
                       </button>
                     </div>
