@@ -81,6 +81,19 @@ export default function ListingDetails({ id, initialData }) {
   
     const handleReport = () => {
       console.log('Report button pressed');
+
+      if (!user) {
+        router.push('/login');
+        return;
+      }
+
+      if (!listing?.ownerID) {
+        setError("Listing owner not found");
+        return;
+      }
+
+      const targetUserId = listing.ownerID.toString();
+      router.push(`/report?targetItem=${id}&targetUserId=${targetUserId}`);
     };
   
     const handleShare = () => {
