@@ -47,8 +47,7 @@ export default function ReportPage() {
 
       if (response.ok) {
         // If the report is successfully created, show a success message or redirect
-        alert("Report submitted successfully!");
-        router.push("/listing/all"); // Redirect to all lsitings
+        router.push("/report/confirmation"); // Redirect to confirmation page
       } else {
         // If the API returns an error, show the error message
         alert(result.error || "An error occurred while submitting the report.");
