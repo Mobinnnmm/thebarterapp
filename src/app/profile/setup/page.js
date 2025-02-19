@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useState, useEffect } from "react";
@@ -72,6 +73,55 @@ export default function ProfileSetupPage() {
 
     fetchUserData();
   }, [user?._id]);
+
+
+const [messageType, setMessageType] = useState(""); // "success" or "error"
+
+const handlePasswordChange = async (e) => {
+  e.preventDefault();
+  setMessage("");
+  setMessageType("");
+
+  const formData = new FormData(e.target);
+  const oldPassword = formData.get("currentPassword");
+  const newPassword = formData.get("newPassword");
+  const confirmPassword = formData.get("confirmPassword");
+
+  if (newPassword !== confirmPassword) {
+    setMessage("Passwords do not match.");
+    setMessageType("error");
+    return;
+  }
+
+  try {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setMessage("You must be logged in to change your password.");
+      setMessageType("error");
+      return;
+    }
+
+    const res = await fetch("/api/user/updatePassword", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ oldPassword, newPassword }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(data.error || "Failed to update password");
+
+    setMessage("Password updated successfully!");
+    setMessageType("success");
+  } catch (error) {
+    setMessage(error.message);
+    setMessageType("error");
+  }
+};
 
   if (!user) {
     return (
@@ -173,14 +223,14 @@ export default function ProfileSetupPage() {
               About
             </button>
             <button
-              onClick={() => setActiveTab("listings")}
+              onClick={() => setActiveTab("Change Password")}
               className={`flex-1 py-4 text-center font-medium transition-colors ${
-                activeTab === "listings"
+                activeTab === "Change Password"
                   ? "bg-purple-500 text-white"
                   : "text-gray-400 hover:text-white hover:bg-gray-700"
               }`}
             >
-              Listings ({userListings.length})
+              Change Password
             </button>
           </div>
 
@@ -267,56 +317,58 @@ export default function ProfileSetupPage() {
                 </form>
               </div>
             ) : (
-              <div className="space-y-6">
-                {userListings.length === 0 ? (
-                  <div className="text-center py-8">
-                    <p className="text-gray-400 mb-4">No listings yet</p>
-                    <Link
-                      href="/listing/create"
-                      className="inline-block bg-purple-500 text-white px-6 py-2 rounded-lg hover:bg-purple-600 transition-all"
-                    >
-                      Create Your First Listing
-                    </Link>
+              <div className="space-y-6 bg-gray-800 p-6 rounded-lg shadow-lg max-w-md mx-auto">
+                <h2 className="text-xl font-semibold text-white text-center">Change Password</h2>
+                
+                <form onSubmit={handlePasswordChange} className="space-y-4">
+                  <div>
+                    <label className="block text-gray-300">Current Password</label>
+                    <input
+                      type="password"
+                      name="currentPassword"
+                      required
+                      className="w-full mt-1 p-2 rounded bg-gray-700 text-white focus:ring focus:ring-purple-500"
+                      placeholder="Enter current password"
+                    />
                   </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {userListings.map((listing) => {
-                      const listingId = listing._id || listing.id; // Get a valid ID
-                      return (
-                        <Link
-                          key={listingId} // Use the ID here
-                          href={`/listing/${listingId}`}
-                          className="block group"
-                        >
-                          <div className="bg-gray-700/50 rounded-lg overflow-hidden hover:transform hover:scale-[1.02] transition-all">
-                            <div className="aspect-w-16 aspect-h-9">
-                              {listing.images?.[0] ? (
-                                <img
-                                  src={listing.images[0]}
-                                  alt={listing.title}
-                                  className="w-full h-48 object-cover"
-                                />
-                              ) : (
-                                <div className="w-full h-48 bg-gray-600 flex items-center justify-center">
-                                  <span className="text-4xl">📦</span>
-                                </div>
-                              )}
-                            </div>
-                            <div className="p-4">
-                              <h3 className="text-lg font-semibold text-white group-hover:text-purple-400 transition-colors">
-                                {listing.title}
-                              </h3>
-                              <p className="text-gray-400 text-sm line-clamp-2 mt-2">
-                                {listing.description}
-                              </p>
-                            </div>
-                          </div>
-                        </Link>
-                      );
-                    })}
+
+                  <div>
+                    <label className="block text-gray-300">New Password</label>
+                    <input
+                      type="password"
+                      name="newPassword"
+                      required
+                      className="w-full mt-1 p-2 rounded bg-gray-700 text-white focus:ring focus:ring-purple-500"
+                      placeholder="Enter new password"
+                    />
                   </div>
-                )}
+
+                  <div>
+                    <label className="block text-gray-300">Confirm New Password</label>
+                    <input
+                      type="password"
+                      name="confirmPassword"
+                      required
+                      className="w-full mt-1 p-2 rounded bg-gray-700 text-white focus:ring focus:ring-purple-500"
+                      placeholder="Confirm new password"
+                    />
+                  </div>
+
+                  {message && (
+                    <p className={`mt-2 text-sm ${messageType === "success" ? "text-green-500" : "text-red-500"}`}>
+                      {message}
+                    </p>
+                  )}
+
+                  <button
+                    type="submit"
+                    className="w-full bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-all"
+                  >
+                    Change Password
+                  </button>
+                </form>
               </div>
+
             )}
           </div>
         </div>
