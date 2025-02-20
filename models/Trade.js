@@ -48,12 +48,12 @@ const tradeSchema = new mongoose.Schema({
   },
   proposedItemId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Item',
+    ref: 'ItemListing',
     required: true
   },
   targetItemId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Item',
+    ref: 'ItemListing',
     required: true
   },
   status: {
