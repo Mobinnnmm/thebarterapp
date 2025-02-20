@@ -56,6 +56,10 @@ const UserSchema = new mongoose.Schema({
   listedItems: {
     type: [String], // array of ItemListing IDs
     default: []
+  },
+  favourites: {
+    type: [String],
+    default: []
   }
 });
 

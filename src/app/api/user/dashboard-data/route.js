@@ -20,11 +20,13 @@ export async function GET(request) {
     }
 
     const items = await ItemListing.find({ _id: { $in: user.listedItems } });
+    const favourites = await ItemListing.find({ _id: { $in: user.favourites }});
 
     return new Response(
       JSON.stringify({
         user,
         items, // full item docs
+        favourites,
       }),
       { status: 200 }
     );
