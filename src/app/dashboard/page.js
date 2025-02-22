@@ -10,9 +10,10 @@ export default function DashboardPage() {
   const router = useRouter();
   const [userInfo, setUserInfo] = useState(null);
   const [items, setItems] = useState([]);
-  const [favourites, setFavourites] = useState([]);
   const [errorMsg, setErrorMsg] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+
+  user._id
 
   useEffect(() => {
     if (!user || !user._id) return;
@@ -27,7 +28,6 @@ export default function DashboardPage() {
         const data = await res.json();
         setUserInfo(data.user);
         setItems(data.items);
-        setFavourites(data.favourites);
       } catch (error) {
         console.error("Error fetching dashboard:", error);
         setErrorMsg(error.message || "Something went wrong.");
@@ -39,29 +39,8 @@ export default function DashboardPage() {
     fetchDashboardData();
   }, [user]);
 
-  const handleDeleteAccount = async () => {
-    if (!window.confirm("Are you sure you want to delete your account?")) return;
-
-    try {
-      const res = await fetch('/api/user/deleteProfile', {
-        method: "DELETE",
-        headers: {
-          "content-type": "application/json",
-          Authorization: `Bearer ${user.token}`,
-        },
-        body: JSON.stringify({ userID: user._id }),
-      });
-
-      if(!res.ok) {
-        const { error } = await res.json();
-        throw new Error(error || 'Failed to delete profile');
-
-      }
-    } catch (error) {
-      console.error('Error deleting Profile: ', error);
-      setErrorMsg(error.message || "Could not delete profile.");
-    }
-
+  const handleLogout = () => {
+    logout();
     router.push('/');
   };
 
@@ -69,38 +48,33 @@ export default function DashboardPage() {
     router.push('/listing/create');
   };
 
-  const handleEdit = (listingId) => {
-    router.push(`/listing/update/${listingId}`);
-  }
+  const handleDeleteListing = async (listingId) => {
+    if (!confirm('Are you sure you want to delete this listing?')) {
+      return;
+    }
 
-  const handleDelete = async (listingId) => {
-    if (!window.confirm("Are you sure you want to delete this item?")) return;
-    
+
     try {
-      const res = await fetch("/api/listing/delete", {
-        method: "DELETE",
+      const response = await fetch('/api/listing/delete', {
+        method: 'DELETE',
         headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${user.token}`,
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
         body: JSON.stringify({ listingID: listingId }),
       });
-  
-      if (!res.ok) {
-        const { error } = await res.json();
-        throw new Error(error || "Failed to delete item");
-      }
-  
-      // Remove deleted item from state
-      setItems((prevItems) => prevItems.filter((item) => item._id !== listingId));
-    } catch (error) {
-      console.error("Error deleting item:", error);
-      setErrorMsg(error.message || "Could not delete item.");
-    }
-  };
 
-  const handleViewProposals = (listingId) => {
-    router.push(`/listing/proposals/${listingId}`);
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to delete listing');
+      }
+
+      // Remove the deleted item from the state
+      setItems(items.filter(item => item._id !== listingId));
+    } catch (error) {
+      console.error('Error deleting listing:', error);
+      setErrorMsg(error.message || 'Failed to delete listing');
+    }
   };
 
   if (!user) {
@@ -166,10 +140,10 @@ export default function DashboardPage() {
                 {userInfo?.aboutMe ? "Update Profile" : "Setup Profile"}
               </Link>
               <button
-                onClick={handleDeleteAccount}
+                onClick={handleLogout}
                 className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg transition-all transform hover:-translate-y-0.5"
               >
-                Delete Account
+                Logout
               </button>
             </div>
           </div>
@@ -259,7 +233,6 @@ export default function DashboardPage() {
                   className="bg-gray-700/50 rounded-xl shadow-xl overflow-hidden hover:transform hover:scale-[1.02] transition-all"
                 >
                   {item.images && item.images[0] ? (
-                    // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={item.images[0]}
                       alt={item.title}
@@ -275,99 +248,22 @@ export default function DashboardPage() {
                     <h4 className="text-xl font-semibold text-indigo-400 mb-2">{item.title}</h4>
                     <p className="text-gray-300 mb-4 line-clamp-2">{item.description}</p>
                     <div className="flex space-x-2">
-                      <button
-                        onClick={() => handleEdit(item._id)}
-                        className="flex-1 bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg transition-all transform hover:-translate-y-0.5">
+                      <button className="flex-1 bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg transition-all transform hover:-translate-y-0.5">
                         Edit
                       </button>
-                      <button
-                        onClick={() => handleDelete(item._id)}
-                        className="flex-1 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-all transform hover:-translate-y-0.5">
+                      <button 
+                        onClick={() => handleDeleteListing(item._id)}
+                        className="flex-1 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-all transform hover:-translate-y-0.5"
+                      >
                         Delete
                       </button>
                     </div>
-                    <div className="mt-2"> 
-                      <button
-                        onClick={() => handleViewProposals(item._id)}
-                        className="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-all transform hover:-translate-y-0.5">
-                        View Proposals
-                      </button>
-                    </div>
                   </div>
                 </div>
               ))}
             </div>
           )}
         </div>
-
-                {/* Favourites Section */}
-                <div className="bg-gray-800/50 backdrop-blur-lg rounded-xl p-6 shadow-xl">
-          <div className="flex flex-col md:flex-row items-center justify-between mb-6">
-            <h3 className="text-2xl font-bold text-indigo-400">Favourite Listings</h3>
-          </div>
-
-          {favourites.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-gray-400 mb-4">No favourite listings yet!</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {favourites.map((listing) => (
-            <Link href={`/listing/${listing._id}`} key={listing._id}>
-            <div className="group bg-gray-800/50 backdrop-blur-lg rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300">
-              {/* Image Container */}
-              <div className="relative h-48 overflow-hidden">
-                {listing.images && listing.images[0] ? (
-                  <img
-                    src={listing.images[0]}
-                    alt={listing.title}
-                    className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-300"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-gray-700 to-gray-600 flex items-center justify-center">
-                    <span className="text-4xl">📦</span>
-                  </div>
-                )}
-                {/* Category Badge */}
-                <div className="absolute top-2 right-2">
-                  <span className="px-3 py-1 bg-purple-500/80 backdrop-blur-sm text-white text-sm rounded-full">
-                    {listing.category || 'Other'}
-                  </span>
-                </div>
-              </div>
-
-              {/* Content */}
-              <div className="p-4">
-                <h3 className="text-xl font-semibold text-white mb-2 group-hover:text-purple-400 transition-colors">
-                  {listing.title}
-                </h3>
-                <p className="text-gray-400 text-sm line-clamp-2">
-                  {listing.description}
-                </p>
-                
-                {/* Footer */}
-                <div className="mt-4 flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center">
-                      👤
-                    </div>
-                    <span className="text-sm text-gray-400">
-                      {listing.ownerName || 'Anonymous'}
-                    </span>
-                  </div>
-                  <span className="text-purple-400 text-sm">
-                    View Details →
-                  </span>
-                </div>
-              </div>
-            </div>
-          </Link>
-              ))}
-            </div>
-          )}
-        </div>
-
-        
       </div>
     </div>
   );
