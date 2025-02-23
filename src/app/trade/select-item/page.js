@@ -9,14 +9,32 @@ import { useSearchParams, useRouter } from 'next/navigation';
 // This page shows the user's listings to select an item for trade
 // Will be rendered when "Propose Trade" is clicked from a listing
 
+// Client component for handling search params
+function SearchParamsHandler({ onParamsChange }) {
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams) {
+      const params = {
+        targetItem: searchParams.get('targetItem'),
+        targetUserId: searchParams.get('targetUserId')
+      };
+      console.log('Select-item page params:', params);
+      onParamsChange(params);
+    }
+  }, [searchParams, onParamsChange]);
+
+  return null;
+}
+
 function SelectTradeItemForm() {
   const [selectedItem, setSelectedItem] = useState(null);
   const [userInfo, setUserInfo] = useState(null);
   const [items, setItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [params, setParams] = useState({});
   const { user } = useAuth();
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   useEffect(() => {
     if (!user || !user._id) return;
@@ -40,17 +58,13 @@ function SelectTradeItemForm() {
     fetchUserData();
   }, [user]);
 
-  useEffect(() => {
-    if (searchParams) {
-      console.log('Select-item page params:', {
-        targetItem: searchParams.get('targetItem'),
-        targetUserId: searchParams.get('targetUserId')
-      });
-    }
-  }, [searchParams]);
-
   const handleSelectItem = (item) => {
     setSelectedItem(item._id);
+  };
+
+  const handleContinue = () => {
+    const { targetItem, targetUserId } = params;
+    router.push(`/trade/summary?selectedItem=${selectedItem}&targetItem=${targetItem}&targetUserId=${targetUserId}`);
   };
 
   if (isLoading) {
@@ -59,6 +73,7 @@ function SelectTradeItemForm() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 py-12 px-4">
+      <SearchParamsHandler onParamsChange={setParams} />
       <div className="max-w-6xl mx-auto">
         {/* User Profile Section */}
 
@@ -156,18 +171,7 @@ function SelectTradeItemForm() {
         {selectedItem && (
           <div className="fixed bottom-8 left-0 right-0 flex justify-center">
             <button
-              onClick={() => {
-                const targetItem = searchParams.get('targetItem');
-                const targetUserId = searchParams.get('targetUserId');
-                
-                console.log('Continuing to summary with:', {
-                  selectedItem,
-                  targetItem,
-                  targetUserId
-                });
-                
-                router.push(`/trade/summary?selectedItem=${selectedItem}&targetItem=${targetItem}&targetUserId=${targetUserId}`);
-              }}
+              onClick={handleContinue}
               className="px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-lg font-medium shadow-lg transform hover:-translate-y-0.5 transition-all"
             >
               Continue with Selected Item
