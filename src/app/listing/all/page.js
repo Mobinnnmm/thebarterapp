@@ -109,7 +109,7 @@ export default function AllListingsPage() {
   
     const matchesTags =
       selected[listing.category]?.size === 0 || // If category is selected but no specific tags, include all listings in that category
-      listing.tags.some((tag) => selected[listing.category]?.has(tag)); // Otherwise, match at least one selected tag
+      listing?.tags.some((tag) => selected[listing.category]?.has(tag)); // Otherwise, match at least one selected tag
   
     return matchesSearch && matchesCategory && matchesTags;
   });

@@ -14,7 +14,18 @@ const ItemListingSchema = new mongoose.Schema({
     type: [String],
     default: []
   },
-  categoryID: String, // references Category by ID if you have a categories system
+  //buxton change
+  category: {
+    type: String,
+    ref: "Category",
+    required: false,
+  },
+  tags: {
+    type: [String],
+    default: [],
+    required: false
+  },
+  //
   location: {
     type: {
       type: String,
