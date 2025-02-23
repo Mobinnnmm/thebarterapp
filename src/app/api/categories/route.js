@@ -1,3 +1,5 @@
+// Categories api endpoint
+
 import { connectToDB } from "../../../../lib/mongodb";
 import Categories from "../../../../models/Categories";
 

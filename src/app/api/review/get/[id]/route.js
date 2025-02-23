@@ -1,3 +1,5 @@
+// Get reviews api endpoint
+
 import { connectToDB } from '../../../../../../lib/mongodb';
 import Review from '../../../../../../models/Review';
 

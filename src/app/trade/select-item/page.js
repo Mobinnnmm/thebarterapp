@@ -1,3 +1,6 @@
+
+// Trade Item Selection Page
+
 "use client";
 
 import { useState, useEffect } from 'react';

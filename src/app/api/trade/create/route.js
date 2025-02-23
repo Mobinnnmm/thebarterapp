@@ -1,3 +1,4 @@
+// Create trade api endpoint
 import { connectToDB } from "../../../../../lib/mongodb";
 import Trade from "../../../../../models/Trade";
 import User from "../../../../../models/User";

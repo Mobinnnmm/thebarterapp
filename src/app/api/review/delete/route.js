@@ -1,3 +1,5 @@
+// Delete review api endpoint
+
 import express from 'express';
 import Review from '../../../../../models/Review.js';
 

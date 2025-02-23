@@ -1,3 +1,5 @@
+// Register api endpoint
+
 import User from "../../../../../models/User";
 import { connectToDB } from "../../../../../lib/mongodb";
 import bcrypt from "bcrypt";

@@ -1,3 +1,5 @@
+// Trade proposals api endpoint
+
 import { connectToDB } from '../../../../../../lib/mongodb';
 import Trade from '../../../../../../models/Trade';
 import ItemListing from '../../../../../../models/ItemListing';

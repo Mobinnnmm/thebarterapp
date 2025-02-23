@@ -1,3 +1,5 @@
+// User api endpoint
+
 import { connectToDB } from '../../../../../lib/mongodb';
 import User from '../../../../../models/User';
 import { Types } from "mongoose";

@@ -1,4 +1,4 @@
-// /app/api/listing/proposals/[id]/route.js
+// Listing proposals api endpoint
 
 import { connectToDB } from "../../../../../../lib/mongodb";
 import User from "../../../../../../models/User";

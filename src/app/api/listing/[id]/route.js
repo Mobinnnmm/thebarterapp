@@ -1,5 +1,4 @@
-// backend for item listing details page
-
+// Listing api endpoint
 import ItemListing from "../../../../../models/ItemListing";
 import { connectToDB } from "../../../../../lib/mongodb";
 

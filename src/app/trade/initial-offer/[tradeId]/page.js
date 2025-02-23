@@ -1,4 +1,6 @@
-"use client"
+// Initial offer page
+
+"use client"    
 
 import { useAuth } from "../../../../../context/AuthContext"
 import { useRouter } from "next/navigation"

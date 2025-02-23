@@ -1,3 +1,5 @@
+// Update listing api endpoint
+
 import { connectToDB } from '../../../../../lib/mongodb';
 import ItemListing from '../../../../../models/ItemListing';
 import jwt from 'jsonwebtoken';

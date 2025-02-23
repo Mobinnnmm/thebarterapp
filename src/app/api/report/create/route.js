@@ -1,7 +1,7 @@
 // create a report and save it to the database
 
 import { connectToDB } from '../../../../../lib/mongodb';
-import Report from '../../../../../models/Report'; // Assuming you have a Report model
+import Report from '../../../../../models/Report';
 import jwt from 'jsonwebtoken';
 
 export async function POST(req) {

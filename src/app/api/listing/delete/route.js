@@ -1,3 +1,5 @@
+// Delete listing api endpoint
+
 import { connectToDB } from '../../../../../lib/mongodb';
 import User from '../../../../../models/User';
 import ItemListing from '../../../../../models/ItemListing';

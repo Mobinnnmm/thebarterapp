@@ -1,7 +1,7 @@
 // Trade Summary Page
 // Shows both items (proposed and target) side by side with confirmation options
-// Rendered after user selects their item to trade
 
+// Trade summary page for users to view their proposed and target items
 "use client";
 
 import { useState, useEffect } from 'react';

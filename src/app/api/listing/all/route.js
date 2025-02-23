@@ -1,5 +1,4 @@
-// all listings page api call to fetch all listings from the database
-
+// all listings api endpoint
 import { connectToDB } from "../../../../../lib/mongodb";
 import ItemListing from "../../../../../models/ItemListing";
 

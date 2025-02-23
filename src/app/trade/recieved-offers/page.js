@@ -1,3 +1,7 @@
+// Received offers page
+
+// Received offers page for users to view their received trade offers
+
 "use client"
 
 import { useEffect, useState } from 'react';

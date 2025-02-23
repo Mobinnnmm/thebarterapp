@@ -1,3 +1,7 @@
+// Trade negotiation page
+
+// Trade negotiation page for users to negotiate a trade with another user`
+
 "use client";
 
 import { useState, useEffect } from 'react';

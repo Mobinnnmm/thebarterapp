@@ -1,3 +1,5 @@
+// Trade negotiate api endpoint
+
 import { connectToDB } from '../../../../../../lib/mongodb';
 import Trade from '../../../../../../models/Trade';
 import { NextResponse } from 'next/server';

@@ -1,3 +1,6 @@
+// Dashboard page
+
+// Dashboard page for users to view their profile information and recent activity
 "use client";
 
 import { useState, useEffect } from "react";

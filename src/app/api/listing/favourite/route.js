@@ -1,3 +1,5 @@
+// Favourite listing api endpoint
+
 import { connectToDB } from '../../../../../lib/mongodb';
 import User from '../../../../../models/User';
 import jwt from 'jsonwebtoken';
