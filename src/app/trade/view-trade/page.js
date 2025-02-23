@@ -174,9 +174,9 @@ export default function ViewTrade() {
         }
 
         return (
-            <div className="space-y-4">
+            <div className="space-y-4 bg-gray-50/50 backdrop-blur-sm">
                 {negotiationHistory.map((entry, index) => (
-                    <div key={index} className="border rounded-lg p-4 bg-white shadow-sm">
+                    <div key={index} className="border rounded-lg p-4 shadow-sm">
                         <div className="flex items-center justify-between mb-2">
                             <span className="font-medium">
                                 Proposed by: {entry.proposedBy.username}
@@ -336,7 +336,7 @@ export default function ViewTrade() {
                         </button>
                         
                         {showNegotiationHistory && (
-                            <div className="mt-4">
+                            <div className="mt-4 bg-gray-50/50 rounded-lg p-4">
                                 <h3 className="font-medium mb-3">Negotiation History</h3>
                                 {renderNegotiationHistory()}
                             </div>

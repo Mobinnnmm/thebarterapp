@@ -4,7 +4,8 @@ import ItemListing from '../../../../../../models/ItemListing';
 import User from '../../../../../../models/User';
 import { NextResponse } from 'next/server';
 
-export async function GET(request, { params }) {
+export async function GET(request, props) {
+  const params = await props.params;
   try {
     await connectToDB();
     

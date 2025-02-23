@@ -3,7 +3,8 @@ import Trade from '../../../../../../models/Trade';
 import { NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 
-export async function POST(req, { params }) {
+export async function POST(req, props) {
+    const params = await props.params;
     try {
         await connectToDB();
 

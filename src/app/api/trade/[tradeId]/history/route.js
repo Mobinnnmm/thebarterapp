@@ -1,7 +1,8 @@
 import { connectToDB } from '../../../../../../lib/mongodb';
 import Trade from '../../../../../../models/Trade';
 import { NextResponse } from 'next/server';
-export async function GET(request, { params }) {
+export async function GET(request, props) {
+    const params = await props.params;
     try {
         // Get the authorization token from the request header
         const token = request.headers.get('authorization')?.split(' ')[1];

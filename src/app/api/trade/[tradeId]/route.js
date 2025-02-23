@@ -2,7 +2,8 @@ import { connectToDB } from '../../../../../lib/mongodb';
 import Trade from '../../../../../models/Trade';
 import { NextResponse } from 'next/server';
 
-export async function GET(request, { params }) {
+export async function GET(request, props) {
+  const params = await props.params;
   try {
     await connectToDB();
     
@@ -44,7 +45,8 @@ export async function GET(request, { params }) {
   }
 }
 
-export async function PUT(request, { params }) {
+export async function PUT(request, props) {
+  const params = await props.params;
   try {
     await connectToDB();
     

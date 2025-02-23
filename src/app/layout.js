@@ -62,13 +62,6 @@ function NavBar() {
                 </Link>
 
                 <Link 
-                  href="/trade/negotiate" 
-                  className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700/50 transition-all"
-                >
-                  Negotiate
-                </Link>
-
-                <Link 
                   href="/dashboard" 
                   className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700/50 transition-all"
                 >
@@ -203,6 +196,7 @@ function NavBar() {
     </nav>
   );
 }
+
 
 // Root Layout component
 export default function RootLayout({ children }) {

@@ -76,7 +76,7 @@ export default function ActiveTrades() {
                             key={trade._id}
                             className="block transition-transform hover:-translate-y-1"
                         >
-                            <div className="border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow bg-white">
+                            <div className="border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow bg-gray-50/50 backdrop-blur-sm">
                                 <div className="flex items-center justify-between mb-4">
                                     <div className="flex items-center">
                                         <Image

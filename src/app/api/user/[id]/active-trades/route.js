@@ -2,7 +2,8 @@ import { connectToDB } from '../../../../../../lib/mongodb';
 import Trade from '../../../../../../models/Trade';
 import { NextResponse } from 'next/server';
 
-export async function GET(req, { params }) {
+export async function GET(req, props) {
+  const params = await props.params;
   try {
     const authHeader = req.headers.get('authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {

@@ -95,7 +95,7 @@ export default function SentOffers() {
                         key={trade._id}
                         className="block transition-transform hover:-translate-y-1"
                     >
-                        <div className="border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow bg-white">
+                        <div className="border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow bg-gray-50/50 backdrop-blur-sm">
                             <div className="flex items-center mb-4">
                                 <Image
                                     src={trade.targetUserId?.profilePicture || defaultAvatar}

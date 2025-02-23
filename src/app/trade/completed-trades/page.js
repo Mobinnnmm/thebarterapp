@@ -74,7 +74,7 @@ export default function CompletedTrades() {
                             key={trade._id}
                             className="block transition-transform hover:-translate-y-1"
                         >
-                            <div className="border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow bg-white">
+                            <div className="border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow bg-gray-50/50 backdrop-blur-sm">
                                 <div className="flex items-center mb-4">
                                     <Image
                                         src={otherUser.profilePicture || defaultAvatar}
@@ -86,12 +86,12 @@ export default function CompletedTrades() {
                                             e.target.src = defaultAvatar;
                                         }}
                                     />
-                                    <span className="ml-2 font-medium">Traded with {otherUser.username}</span>
+                                    <span className="ml-2 font-medium text-gray-800">Traded with {otherUser.username}</span>
                                 </div>
                                 
                                 <div className="flex justify-between mb-4">
                                     <div className="flex-1">
-                                        <p className="font-medium">{isProposer ? "You offered:" : "You received:"}</p>
+                                        <p className="font-medium text-gray-800">{isProposer ? "You offered:" : "You received:"}</p>
                                         <div className="mt-2">
                                             {trade.proposedItemId.images?.[0] ? (
                                                 <Image
@@ -109,12 +109,12 @@ export default function CompletedTrades() {
                                                     <span className="text-gray-500">No image</span>
                                                 </div>
                                             )}
-                                            <p className="mt-1 text-sm font-medium">{trade.proposedItemId.title}</p>
+                                            <p className="mt-1 text-sm font-medium text-gray-700">{trade.proposedItemId.title}</p>
                                         </div>
                                     </div>
                                     
                                     <div className="flex-1 ml-4">
-                                        <p className="font-medium">{isProposer ? "For their:" : "For your:"}</p>
+                                        <p className="font-medium text-gray-800">{isProposer ? "For their:" : "For your:"}</p>
                                         <div className="mt-2">
                                             {trade.targetItemId.images?.[0] ? (
                                                 <Image
@@ -132,7 +132,7 @@ export default function CompletedTrades() {
                                                     <span className="text-gray-500">No image</span>
                                                 </div>
                                             )}
-                                            <p className="mt-1 text-sm font-medium">{trade.targetItemId.title}</p>
+                                            <p className="mt-1 text-sm font-medium text-gray-700">{trade.targetItemId.title}</p>
                                         </div>
                                     </div>
                                 </div>

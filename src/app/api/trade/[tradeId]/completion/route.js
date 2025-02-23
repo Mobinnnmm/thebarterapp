@@ -2,7 +2,8 @@ import { connectToDB } from "../../../../../../lib/mongodb";
 import Trade from "../../../../../../models/Trade";
 import { NextResponse } from "next/server";
 
-export async function POST(req, { params }) {
+export async function POST(req, props) {
+    const params = await props.params;
     try {
         // Get the authorization header
         const authHeader = req.headers.get('authorization');

@@ -2,7 +2,8 @@ import { connectToDB } from '../../../../../lib/mongodb';
 import User from '../../../../../models/User';
 import { Types } from "mongoose";
 
-export async function GET(req, { params }) {
+export async function GET(req, props) {
+  const params = await props.params;
   try {
     // const { id } =  params;
     const id = await params.id;
