@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../../../../context/AuthContext';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
@@ -27,7 +27,7 @@ function ViewTradeForm() {
   const [error, setError] = useState(null);
   const { user } = useAuth();
   const router = useRouter();
-  const [tradeId, setTradeId] = useState(null);
+  const searchParams = useSearchParams();
   const [isRejecting, setIsRejecting] = useState(false);
   const [updateError, setUpdateError] = useState(null);
   const [showActions, setShowActions] = useState(false);
@@ -39,11 +39,15 @@ function ViewTradeForm() {
   const defaultAvatar = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23ccc' d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/%3E%3C/svg%3E";
 
   useEffect(() => {
-    const fetchTrade = async () => {
-      if (!tradeId || !user?._id) return;
-      
+    async function fetchTrade() {
+      const id = searchParams.get('id');
+      if (!id || !user?._id) {
+        setLoading(false);
+        return;
+      }
+
       try {
-        const response = await fetch(`/api/trade/${tradeId}`, {
+        const response = await fetch(`/api/trade/${id}`, {
           headers: {
             'Authorization': `Bearer ${user.token}`
           }
@@ -51,23 +55,27 @@ function ViewTradeForm() {
         const data = await response.json();
         
         if (data.success) {
+          console.log("Trade data:", data.trade); // Debug log
           setTrade(data.trade);
           setShowActions(data.trade.targetUserId._id === user._id && data.trade.status === 'pending');
         } else {
-          setError(data.error);
+          setError(data.error || 'Failed to fetch trade details');
         }
       } catch (err) {
+        console.error('Error fetching trade:', err);
         setError('Failed to fetch trade details');
-        console.error(err);
       } finally {
         setLoading(false);
       }
-    };
+    }
 
     fetchTrade();
-  }, [tradeId, user]);
+  }, [searchParams, user]);
 
   const handleReject = async () => {
+    const id = searchParams.get('id');
+    if (!id) return;
+    
     if (!confirm('Are you sure you want to reject this trade offer?')) {
       return;
     }
@@ -76,7 +84,7 @@ function ViewTradeForm() {
     setUpdateError(null);
 
     try {
-      const response = await fetch(`/api/trade/${tradeId}`, {
+      const response = await fetch(`/api/trade/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -101,18 +109,22 @@ function ViewTradeForm() {
   };
 
   const handleAccept = async () => {
+    const id = searchParams.get('id');
+    if (!id) return;
+
     if (!confirm('Are you sure you want to accept this trade offer? You will be able to propose meeting details next.')) {
       return;
     }
-    router.push(`/trade/initial-offer/${tradeId}`);
+    router.push(`/trade/initial-offer/${id}`);
   };
 
   const fetchNegotiationHistory = async () => {
-    if (!tradeId || !user?.token) return;
+    const id = searchParams.get('id');
+    if (!id || !user?.token) return;
     
     setLoadingHistory(true);
     try {
-      const response = await fetch(`/api/trade/${tradeId}/history`, {
+      const response = await fetch(`/api/trade/${id}/history`, {
         headers: {
           'Authorization': `Bearer ${user.token}`
         }
@@ -159,20 +171,45 @@ function ViewTradeForm() {
     );
   };
 
-  if (!user) {
-    return <div className="text-center p-4">Please log in to view trade details.</div>;
-  }
-
   if (loading) {
-    return <LoadingView />;
+    return (
+      <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-gray-900 to-gray-800">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="text-center text-red-500 p-4">{error}</div>;
+    return (
+      <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-gray-900 to-gray-800">
+        <div className="text-center text-red-500 bg-gray-800/50 backdrop-blur-lg p-8 rounded-xl">
+          <h2 className="text-2xl font-bold mb-4">Error</h2>
+          <p>{error}</p>
+          <button 
+            onClick={() => router.back()} 
+            className="mt-4 px-6 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600"
+          >
+            Go Back
+          </button>
+        </div>
+      </div>
+    );
   }
 
   if (!trade) {
-    return <div className="text-center p-4">Trade not found.</div>;
+    return (
+      <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-gray-900 to-gray-800">
+        <div className="text-center text-white bg-gray-800/50 backdrop-blur-lg p-8 rounded-xl">
+          <h2 className="text-2xl font-bold mb-4">Trade Not Found</h2>
+          <button 
+            onClick={() => router.back()} 
+            className="mt-4 px-6 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600"
+          >
+            Go Back
+          </button>
+        </div>
+      </div>
+    );
   }
 
   const isProposer = trade.proposerId._id === user._id;
@@ -189,7 +226,7 @@ function ViewTradeForm() {
           <div key={index} className="border rounded-lg p-4 shadow-sm">
             <div className="flex items-center justify-between mb-2">
               <span className="font-medium">
-                Proposed by: {entry.proposedBy.username}
+                Proposed by: {entry.proposedBy?.username || 'Unknown'}
               </span>
               <span className="text-sm text-gray-600">
                 {new Date(entry.createdAt).toLocaleDateString()} 
@@ -198,20 +235,22 @@ function ViewTradeForm() {
               </span>
             </div>
             <div className="text-sm">
-              <p><strong>Date:</strong> {entry.meetingDetails.date}</p>
-              <p><strong>Location:</strong> {entry.meetingDetails.location}</p>
-              {entry.meetingDetails.instructions && (
+              <p><strong>Date:</strong> {entry.meetingDetails?.date || 'Not specified'}</p>
+              <p><strong>Location:</strong> {entry.meetingDetails?.location || 'Not specified'}</p>
+              {entry.meetingDetails?.instructions && (
                 <p><strong>Instructions:</strong> {entry.meetingDetails.instructions}</p>
               )}
             </div>
             <div className="mt-2 text-sm">
-              <span className={`px-2 py-1 rounded-full ${
-                entry.status === 'accepted' ? 'bg-green-100 text-green-800' :
-                entry.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                'bg-yellow-100 text-yellow-800'
-              }`}>
-                {entry.status.charAt(0).toUpperCase() + entry.status.slice(1)}
-              </span>
+              {entry.status && (
+                <span className={`px-2 py-1 rounded-full ${
+                  entry.status === 'accepted' ? 'bg-green-100 text-green-800' :
+                  entry.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                  'bg-yellow-100 text-yellow-800'
+                }`}>
+                  {entry.status.charAt(0).toUpperCase() + entry.status.slice(1)}
+                </span>
+              )}
             </div>
           </div>
         ))}
@@ -358,18 +397,8 @@ function ViewTradeForm() {
   );
 }
 
-function LoadingView() {
-  return (
-    <div className="flex justify-center items-center min-h-screen">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
-    </div>
-  );
-}
-
 export default function ViewTrade() {
   return (
-    <Suspense fallback={<LoadingView />}>
-      <ViewTradeForm />
-    </Suspense>
+    <ViewTradeForm />
   );
 }
