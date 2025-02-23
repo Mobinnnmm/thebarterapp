@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useAuth } from "../../../context/AuthContext"; // Import authentication context
 import { useSearchParams, useRouter } from "next/navigation";
 
-export default function ReportPage() {
+function ReportForm() {
   const [reportType, setReportType] = useState("user"); // Default to reporting a user
   const [description, setDescription] = useState("");
   const [userInfo, setUserInfo] = useState(null);
@@ -105,5 +105,22 @@ export default function ReportPage() {
         </form>
       </div>
     </div>
+  );
+}
+
+// Loading component
+function LoadingReport() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900 dark:border-gray-100"></div>
+    </div>
+  );
+}
+
+export default function ReportPage() {
+  return (
+    <Suspense fallback={<LoadingReport />}>
+      <ReportForm />
+    </Suspense>
   );
 }

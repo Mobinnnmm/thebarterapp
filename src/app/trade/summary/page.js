@@ -1,14 +1,14 @@
 // Trade Summary Page
 // Shows both items (proposed and target) side by side with confirmation options
+// Rendered after user selects their item to trade
 
-// Trade summary page for users to view their proposed and target items
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from "../../../../context/AuthContext";
 
-export default function TradeSummaryPage() {
+function TradeSummaryForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user } = useAuth();
@@ -207,5 +207,23 @@ export default function TradeSummaryPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Loading component
+function LoadingTradeSummary() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center">
+      <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-purple-500"></div>
+    </div>
+  );
+}
+
+// Main page component
+export default function TradeSummaryPage() {
+  return (
+    <Suspense fallback={<LoadingTradeSummary />}>
+      <TradeSummaryForm />
+    </Suspense>
   );
 } 
