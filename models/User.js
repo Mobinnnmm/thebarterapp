@@ -60,6 +60,19 @@ const UserSchema = new mongoose.Schema({
   favourites: {
     type: [String],
     default: []
+  },
+  // New field: track user's reviews revieved, given, total recived
+  postedReviews:{
+    reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: "Review" }],
+    default: [] 
+  },
+  recievedReviews:{
+    reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: "Review" }],
+    default: [] 
+  },
+  numRatings:{
+    type: Number,
+    default: 0
   }
 });
 

@@ -60,18 +60,11 @@ function NavBar() {
                 >
                   Create Listing
                 </Link>
-
                 <Link 
                   href="/dashboard" 
                   className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700/50 transition-all"
                 >
                   Dashboard
-                </Link>
-                <Link 
-                  href="/trade" 
-                  className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700/50 transition-all"
-                >
-                  Trade
                 </Link>
                 <button
                   onClick={handleLogout}
@@ -196,7 +189,6 @@ function NavBar() {
     </nav>
   );
 }
-
 
 // Root Layout component
 export default function RootLayout({ children }) {

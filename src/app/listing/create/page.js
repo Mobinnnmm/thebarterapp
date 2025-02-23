@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../../../context/AuthContext";
 import Link from "next/link";
 import { FiPlus, FiImage, FiX } from 'react-icons/fi';
+import Categories from "../components/Categories";
 
 export default function CreateListingPage() {
   const { user } = useAuth();
@@ -15,7 +16,47 @@ export default function CreateListingPage() {
   const [images, setImages] = useState([""]);
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedTags, setSelectedTags] = useState([]);
 
+
+  useEffect(() => {
+      async function fetchCategories() {
+        try {
+          const res = await fetch('/api/categories');
+          if (!res.ok) {
+            throw new Error('Failed to fetch categories');
+          }
+          const data = await res.json();
+          setCategories(data);
+        } catch (error) {
+          console.error(error);
+        }
+      }
+  
+      fetchCategories();
+    }, []);
+  
+    const handleCategoryChange = (e) => {
+      const categoryId = e.target.value;
+      setSelectedCategory(categoryId);
+      setSelectedTags([]);
+    };
+  
+    const handleTagChange = (e) => {
+      const tag = e.target.value;
+      if (e.target.checked) {
+        setSelectedTags((prev) => [...prev, tag]);
+      } else {
+        setSelectedTags((prev) => prev.filter((t) => t !== tag));
+      }
+    };
+  
+    const selectedCategoryData = categories.find((cat) => cat._id === selectedCategory);
+  
+  //add get categories and tags
+  
   if (!user || !user.token) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center">
@@ -48,6 +89,8 @@ export default function CreateListingPage() {
         body: JSON.stringify({
           title,
           description,
+          selectedCategory,
+          selectedTags,
           images: images.filter(img => img.trim() !== ""),
         }),
       });
@@ -135,6 +178,63 @@ export default function CreateListingPage() {
                 required
               />
             </div>
+            
+            <div className="flex flex-col gap-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Select Categories</label>
+              <div className="space-y-4">
+      {/* Category Selector */}
+      <div className="flex items-center gap-4">
+        
+        <select
+          className="w-auto px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-white"
+          onChange={handleCategoryChange}
+          value={selectedCategory || ''}
+        >
+          <option value="">Select a category</option>
+          {categories.map((category) => (
+            <option key={category._id} value={category._id}>
+              {category.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Tags Selection (Horizontal) */}
+      {selectedCategoryData && (
+        <div>
+          <h3 className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Select Tags:</h3>
+          <div className="mt-2 p-2 bg-gray-800 text-white border border-gray-600 rounded-md flex flex-wrap gap-4">
+            {selectedCategoryData.tags.map((tag) => (
+              <label key={tag} className="inline-flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  value={tag}
+                  checked={selectedTags.includes(tag)}
+                  onChange={handleTagChange}
+                  className="accent-purple-500"
+                />
+                {tag}
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+              {/* <select
+              id="selectCategory"
+              className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all"
+              value={selected}
+              onChange={(e) => setCategories(e.target.value)}
+              //className="border rounded-md p-2 focus:ring-2 focus:ring-blue-500"
+              >
+              <option className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" value="">No Data</option>
+              {options.map((opt) => (
+              <option className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" key={opt.id} value={opt.id}>{opt.name}</option>
+            ))}
+          </select> */}
+          {/* {selected && <p className="text-sm mt-2">You selected: {selected}</p>} */}
+        </div>
+
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -172,6 +272,14 @@ export default function CreateListingPage() {
                   <FiPlus /> Add another image
                 </button>
               </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Images
+              </label>
+              <div className="space-y-3">
+            </div>
             </div>
 
             <button

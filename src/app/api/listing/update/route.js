@@ -30,7 +30,7 @@ export async function PUT(req) {
 
         // Parse request body
         const body = await req.json();
-        const { title, description } = body;
+        const { title, description, category, tags } = body;
 
         // For debugging
         console.log("Edit Listing Body:", body);
@@ -53,6 +53,8 @@ export async function PUT(req) {
         // Update the listing fields
         existingListing.title = title || existingListing.title;
         existingListing.description = description || existingListing.description;
+        existingListing.category = category || existingListing.category;
+        existingListing.tags = tags || existingListing.tags;
 
         // Save the updated listing
         await existingListing.save();

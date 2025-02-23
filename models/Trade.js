@@ -62,27 +62,7 @@ const tradeSchema = new mongoose.Schema({
     default: 'pending'
   },
   currentProposal: proposalSchema,
-  negotiationHistory: [{
-    proposedBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: true
-    },
-    meetingDetails: {
-      date: String,
-      location: String,
-      instructions: String
-    },
-    status: {
-      type: String,
-      enum: ['pending', 'accepted', 'rejected'],
-      default: 'pending'
-    },
-    createdAt: {
-      type: Date,
-      default: Date.now
-    }
-  }],
+  negotiationHistory: [proposalSchema],
   createdAt: {
     type: Date,
     default: Date.now

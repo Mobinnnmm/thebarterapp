@@ -1,16 +1,11 @@
-// creates a listing and save it to the database
-
 import { connectToDB } from '../../../../../lib/mongodb';
 import User from '../../../../../models/User';
 import ItemListing from '../../../../../models/ItemListing';
 import jwt from 'jsonwebtoken';
 
-
 export async function POST(req) {
   try {
     await connectToDB();
-
-
 
     // 1) Get token from the "authorization" header
     const authHeader = req.headers.get("authorization");
@@ -20,10 +15,8 @@ export async function POST(req) {
       });
     }
 
-        // Extract the token from Bearer header
-        const token = authHeader.split(' ')[1];
-
-
+    // Extract the token from Bearer header
+    const token = authHeader.split(' ')[1];
 
     // 2) verify the token
     let decoded;
@@ -41,20 +34,22 @@ export async function POST(req) {
       title,
       description,
       images,
-      categoryID,
+      selectedCategory,
+      selectedTags, 
       location,
     } = body;
 
-        // For debugging, console.log what the server received:
-        console.log("Create Listing Body:", body);
-        
+    // For debugging, console.log what the server received:
+    console.log("Create Listing Body:", body);
+    
     // 1. Create the new listing in the DB
     const newListing = new ItemListing({
       ownerID: decoded._id,
       title,
       description,
       images,
-      categoryID,
+      category: selectedCategory, // Using selectedCategory
+      tags: selectedTags, // Using selectedTags
       location
     });
 
@@ -79,4 +74,3 @@ export async function POST(req) {
     });
   }
 }
-

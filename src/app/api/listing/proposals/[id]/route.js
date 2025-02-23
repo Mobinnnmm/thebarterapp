@@ -5,8 +5,7 @@ import User from "../../../../../../models/User";
 import ItemListing from "../../../../../../models/ItemListing";
 import Trade from "../../../../../../models/Trade";
 
-export async function GET(req, props) {
-  const params = await props.params;
+export async function GET(req, { params }) {
   const { id } = params;
 
   try {

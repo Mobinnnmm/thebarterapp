@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from "../../../../context/AuthContext";
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -9,31 +9,13 @@ import { useSearchParams, useRouter } from 'next/navigation';
 // This page shows the user's listings to select an item for trade
 // Will be rendered when "Propose Trade" is clicked from a listing
 
-// Client component for handling search params
-function SearchParamsHandler({ onParamsChange }) {
-  const searchParams = useSearchParams();
-
-  useEffect(() => {
-    if (searchParams) {
-      const params = {
-        targetItem: searchParams.get('targetItem'),
-        targetUserId: searchParams.get('targetUserId')
-      };
-      console.log('Select-item page params:', params);
-      onParamsChange(params);
-    }
-  }, [searchParams, onParamsChange]);
-
-  return null;
-}
-
-function SelectTradeItemForm() {
+export default function SelectTradeItemPage() {
   const [selectedItem, setSelectedItem] = useState(null);
   const [userInfo, setUserInfo] = useState(null);
   const [items, setItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [params, setParams] = useState({});
   const { user } = useAuth();
+  const searchParams = useSearchParams();
   const router = useRouter();
 
   useEffect(() => {
@@ -58,22 +40,27 @@ function SelectTradeItemForm() {
     fetchUserData();
   }, [user]);
 
+  useEffect(() => {
+    console.log('Select-item page params:', {
+      targetItem: searchParams.get('targetItem'),
+      targetUserId: searchParams.get('targetUserId')
+    });
+  }, [searchParams]);
+
   const handleSelectItem = (item) => {
     setSelectedItem(item._id);
   };
 
-  const handleContinue = () => {
-    const { targetItem, targetUserId } = params;
-    router.push(`/trade/summary?selectedItem=${selectedItem}&targetItem=${targetItem}&targetUserId=${targetUserId}`);
-  };
-
   if (isLoading) {
-    return <LoadingSelectItem />;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-purple-500"></div>
+      </div>
+    );
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 py-12 px-4">
-      <SearchParamsHandler onParamsChange={setParams} />
       <div className="max-w-6xl mx-auto">
         {/* User Profile Section */}
 
@@ -171,7 +158,18 @@ function SelectTradeItemForm() {
         {selectedItem && (
           <div className="fixed bottom-8 left-0 right-0 flex justify-center">
             <button
-              onClick={handleContinue}
+              onClick={() => {
+                const targetItem = searchParams.get('targetItem');
+                const targetUserId = searchParams.get('targetUserId');
+                
+                console.log('Continuing to summary with:', {
+                  selectedItem,
+                  targetItem,
+                  targetUserId
+                });
+                
+                router.push(`/trade/summary?selectedItem=${selectedItem}&targetItem=${targetItem}&targetUserId=${targetUserId}`);
+              }}
               className="px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-lg font-medium shadow-lg transform hover:-translate-y-0.5 transition-all"
             >
               Continue with Selected Item
@@ -183,22 +181,5 @@ function SelectTradeItemForm() {
         
       </div>
     </div>
-  );
-}
-
-function LoadingSelectItem() {
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center">
-      <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-purple-500"></div>
-    </div>
-  );
-}
-
-// Main page component with no hooks
-export default function SelectTradeItemPage() {
-  return (
-    <Suspense fallback={<LoadingSelectItem />}>
-      <SelectTradeItemForm />
-    </Suspense>
   );
 } 
