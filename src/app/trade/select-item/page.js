@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useAuth } from "../../../../context/AuthContext";
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -9,7 +9,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 // This page shows the user's listings to select an item for trade
 // Will be rendered when "Propose Trade" is clicked from a listing
 
-export default function SelectTradeItemPage() {
+function SelectTradeItemForm() {
   const [selectedItem, setSelectedItem] = useState(null);
   const [userInfo, setUserInfo] = useState(null);
   const [items, setItems] = useState([]);
@@ -181,5 +181,23 @@ export default function SelectTradeItemPage() {
         
       </div>
     </div>
+  );
+}
+
+// Loading component
+function LoadingSelectItem() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center">
+      <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-purple-500"></div>
+    </div>
+  );
+}
+
+// Main page component
+export default function SelectTradeItemPage() {
+  return (
+    <Suspense fallback={<LoadingSelectItem />}>
+      <SelectTradeItemForm />
+    </Suspense>
   );
 } 
