@@ -129,7 +129,7 @@ export default function AllListingsPage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
       
       {/* Hero Section */}
-      <div className="relative overflow-hidden bg-gray-800/50 backdrop-blur-lg py-16 mb-8">
+      <div className="relative overflow-hidden= bg-gray-800/50 backdrop-blur-lg py-16 mb-8">
       
         <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">

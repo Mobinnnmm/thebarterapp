@@ -21,6 +21,7 @@ export default function UserProfilePage() {
   const [reviewText, setReviewText] = useState("");
   const [rating, setRating] = useState(5);
   const [loggedInUserId, setLoggedInUserId] = useState(userId); 
+  const [deleteReviewId, setDeleteReviewId] = useState(null);
 
 
   useEffect(() => {
@@ -75,7 +76,7 @@ export default function UserProfilePage() {
       rating: parseInt(rating),
     };
 
-    if (newReview.reviewedId == newReview.reviewerId) return alert("You cannot write a review for yourself");
+    if (newReview.reviewedId == userId) return alert("You cannot write a review for yourself");
 
     try {
       const response = await fetch(`/api/review/create`, {
@@ -94,6 +95,26 @@ export default function UserProfilePage() {
       console.error("Error submitting review:", error);
     }
   };
+
+  const deleteReview = async () => {
+    try {
+      const response = await fetch(`http://localhost:3000/api/review/delete/${deleteReviewId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete review");
+      }
+
+      alert("Review deleted successfully");
+      // Optionally: Refresh the list of reviews or update UI state
+    } catch (error) {
+      alert("Error deleting review: " + error.message);
+    } 
+  }
 
   if (isLoading) {
     return (
@@ -268,21 +289,60 @@ export default function UserProfilePage() {
           </div>
         )}
 
-        {userReviews.length === 0 ? (
+   
+        {viewMode === "reviews" && userReviews.length === 0 ? (
           <div className="text-center py-12 bg-gray-800 rounded-xl">
             <p className="text-gray-400">This user has no reviews.</p>
           </div>
         ) : (
+          <div>
+          {viewMode === "reviews" && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {userReviews.map((review) => (
-              <div key={review._id} className="bg-gray-800 p-4 rounded-xl shadow-lg">
-                <p className="text-white font-semibold">{review.reviewerId?.username}</p>
-                <p className="text-gray-400">{review.notes}</p>
-                <p className="text-yellow-500">{review.rating} / 5 ⭐</p>
+              <div key={review._id} className="text-left bg-gray-800 p-4 rounded-xl shadow-lg">
+                <div className="flex items-center space-x-4">
+                
+                <div className="w-12 h-12 rounded-full overflow-hidden bg-purple-500 flex-shrink-0">
+                  {ownerData?.profilePicture ? (
+                    <img
+                      src={ownerData.profilePicture}
+                      alt={ownerData.username}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-4xl">
+                      👤
+                    </div>
+                  )}
+                </div>
+
+               
+                <span className="text-lg font-medium">{review?.reviewerId?.username || "Unknown User"}</span>
+              </div>
+
+                <p className="text-yellow-500 pt-5 pl-1">{review.rating} / 5 ⭐</p>
+                <p className="text-gray-400 pt-5 pb-5">{review.notes}</p>
+               
+                {/* {review?.reviewerId._id === userId && 
+                <button 
+                onClick={() => {
+                  setDeleteReviewId(review._id);
+                  deleteReview();  
+                  console.log(review._id + " boop");
+                }} 
+                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all transform hover:-translate-y-0.5"
+              >
+                Delete
+              </button>} */}
+               
               </div>
             ))}
           </div>
+          )}
+          </div>
         )}
+        
+        
       </div>
     </div>
   );
