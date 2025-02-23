@@ -75,7 +75,7 @@ export default function UserProfilePage() {
       rating: parseInt(rating),
     };
 
-    if (newReview.reviewedId == newReview.reviewerId) throw new Error("You cannot write a review for yourself");
+    if (newReview.reviewedId == newReview.reviewerId) return alert("You cannot write a review for yourself");
 
     try {
       const response = await fetch(`/api/review/create`, {
