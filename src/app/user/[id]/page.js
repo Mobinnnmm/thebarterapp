@@ -323,7 +323,7 @@ export default function UserProfilePage() {
                 <p className="text-yellow-500 pt-5 pl-1">{review.rating} / 5 ⭐</p>
                 <p className="text-gray-400 pt-5 pb-5">{review.notes}</p>
                
-                {/* {review?.reviewerId._id === userId && 
+                {review?.reviewerId._id === userId && 
                 <button 
                 onClick={() => {
                   setDeleteReviewId(review._id);
@@ -333,7 +333,7 @@ export default function UserProfilePage() {
                 className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all transform hover:-translate-y-0.5"
               >
                 Delete
-              </button>} */}
+              </button>}
                
               </div>
             ))}
