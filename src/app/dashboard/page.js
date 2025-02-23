@@ -13,10 +13,11 @@ export default function DashboardPage() {
   const [errorMsg, setErrorMsg] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
-  user._id
-
   useEffect(() => {
-    if (!user || !user._id) return;
+    if (!user || !user._id) {
+      setIsLoading(false);
+      return;
+    }
 
     async function fetchDashboardData() {
       try {
