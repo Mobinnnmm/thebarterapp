@@ -15,8 +15,8 @@ function SelectTradeItemForm() {
   const [items, setItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
-  const searchParams = useSearchParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     if (!user || !user._id) return;
@@ -41,10 +41,12 @@ function SelectTradeItemForm() {
   }, [user]);
 
   useEffect(() => {
-    console.log('Select-item page params:', {
-      targetItem: searchParams.get('targetItem'),
-      targetUserId: searchParams.get('targetUserId')
-    });
+    if (searchParams) {
+      console.log('Select-item page params:', {
+        targetItem: searchParams.get('targetItem'),
+        targetUserId: searchParams.get('targetUserId')
+      });
+    }
   }, [searchParams]);
 
   const handleSelectItem = (item) => {
@@ -52,11 +54,7 @@ function SelectTradeItemForm() {
   };
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-purple-500"></div>
-      </div>
-    );
+    return <LoadingSelectItem />;
   }
 
   return (
@@ -184,7 +182,6 @@ function SelectTradeItemForm() {
   );
 }
 
-// Loading component
 function LoadingSelectItem() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center">
@@ -193,7 +190,7 @@ function LoadingSelectItem() {
   );
 }
 
-// Main page component
+// Main page component with no hooks
 export default function SelectTradeItemPage() {
   return (
     <Suspense fallback={<LoadingSelectItem />}>
