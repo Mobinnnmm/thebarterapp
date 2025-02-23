@@ -7,27 +7,27 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { FaArrowLeft } from 'react-icons/fa';
 
-// Client component for handling search params
-function SearchParamsHandler({ onParamsChange }) {
+// Create a wrapper component that handles both search params and trade viewing
+function TradeViewer() {
   const searchParams = useSearchParams();
+  const [tradeId, setTradeId] = useState(null);
 
   useEffect(() => {
     if (searchParams) {
-      const tradeId = searchParams.get('id');
-      onParamsChange(tradeId);
+      const id = searchParams.get('id');
+      setTradeId(id);
     }
-  }, [searchParams, onParamsChange]);
+  }, [searchParams]);
 
-  return null;
+  return <ViewTradeForm tradeId={tradeId} />;
 }
 
-function ViewTradeForm() {
+function ViewTradeForm({ tradeId }) {
   const [trade, setTrade] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { user } = useAuth();
   const router = useRouter();
-  const [tradeId, setTradeId] = useState(null);
   const [isRejecting, setIsRejecting] = useState(false);
   const [updateError, setUpdateError] = useState(null);
   const [showActions, setShowActions] = useState(false);
@@ -369,7 +369,7 @@ function LoadingView() {
 export default function ViewTrade() {
   return (
     <Suspense fallback={<LoadingView />}>
-      <ViewTradeForm />
+      <TradeViewer />
     </Suspense>
   );
 }
