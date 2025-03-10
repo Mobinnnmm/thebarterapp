@@ -1,12 +1,12 @@
 // Delete review api endpoint
 
 import { NextResponse } from 'next/server';
-import Review from '../../../../../models/Review.js';
-import { connectDB } from '../../../../../utils/database';
+import Review from '../../../../../models/Review';
+import { connectToDB } from '../../../../../lib/mongodb';
 
 export async function DELETE(request) {
   try {
-    await connectDB();
+    await connectToDB();
     
     // Get the review ID from the URL or request body
     const url = new URL(request.url);
