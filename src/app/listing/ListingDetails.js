@@ -68,6 +68,7 @@ export default function ListingDetails({ id, initialData }) {
     }
   }, [user, id]);
 
+  const isItemAvailable = listing?.status === 'Available';
 
   const handleViewProfile = () => {
     if (owner?._id) {
@@ -78,8 +79,40 @@ export default function ListingDetails({ id, initialData }) {
     }
   };
 
-  const handleChat = () => {
-    console.log("Chat button pressed");
+  const handleChat = async () => {
+    if (!user) {
+      router.push("/login");
+      return;
+    }
+
+    if (!listing?.ownerID) {
+      console.error("Listing owner not found");
+      return;
+    }
+
+    try {
+      // Create or get chat room
+      const response = await fetch('/api/chat/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          proposerId: user._id,
+          proposeeId: listing.ownerID,
+          listingId: listing._id
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create/get chat room');
+      }
+
+      const chatData = await response.json();
+      router.push(`/chat?roomId=${chatData.roomId}`);
+    } catch (error) {
+      console.error('Error creating chat:', error);
+    }
   };
 
   const handleProposeTrade = () => {
@@ -174,17 +207,29 @@ export default function ListingDetails({ id, initialData }) {
 
       <button
         onClick={handleChat}
-        className="flex flex-col items-center justify-center p-4 bg-gray-700/30 rounded-lg hover:bg-gray-700/50 transition-all"
+        disabled={!isItemAvailable}
+        className={`flex flex-col items-center justify-center p-4 bg-gray-700/30 rounded-lg ${
+          isItemAvailable 
+            ? 'hover:bg-gray-700/50 transition-all' 
+            : 'opacity-50 cursor-not-allowed'
+        }`}
       >
         <span className="text-2xl mb-2">💬</span>
         <span className="text-sm text-gray-300">Chat</span>
       </button>
       <button
         onClick={handleProposeTrade}
-        className="flex flex-col items-center justify-center p-4 bg-gray-700/30 rounded-lg hover:bg-gray-700/50 transition-all"
+        disabled={!isItemAvailable}
+        className={`flex flex-col items-center justify-center p-4 bg-gray-700/30 rounded-lg ${
+          isItemAvailable 
+            ? 'hover:bg-gray-700/50 transition-all' 
+            : 'opacity-50 cursor-not-allowed'
+        }`}
       >
         <span className="text-2xl mb-2">🔄</span>
-        <span className="text-sm text-gray-300">Propose Trade</span>
+        <span className="text-sm text-gray-300">
+          {isItemAvailable ? 'Propose Trade' : 'Item Traded'}
+        </span>
       </button>
       <button
         onClick={handleReport}
@@ -220,17 +265,27 @@ export default function ListingDetails({ id, initialData }) {
         <>
           <button
             onClick={handleContactOwner}
-            className="flex-1 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-all transform hover:-translate-y-0.5 flex items-center justify-center space-x-2"
+            disabled={!isItemAvailable}
+            className={`flex-1 bg-gradient-to-r from-purple-500 to-blue-500 text-white px-6 py-3 rounded-lg font-medium transition-all transform ${
+              isItemAvailable 
+                ? 'hover:from-purple-600 hover:to-blue-600 hover:-translate-y-0.5' 
+                : 'opacity-50 cursor-not-allowed'
+            }`}
           >
             <span>💬</span>
             <span>Contact Owner</span>
           </button>
           <button
             onClick={handleProposeTrade}
-            className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-6 py-3 rounded-lg font-medium transition-all transform hover:-translate-y-0.5 flex items-center justify-center space-x-2"
+            disabled={!isItemAvailable}
+            className={`flex-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-3 rounded-lg font-medium transition-all transform ${
+              isItemAvailable 
+                ? 'hover:from-green-600 hover:to-emerald-600 hover:-translate-y-0.5' 
+                : 'opacity-50 cursor-not-allowed'
+            }`}
           >
             <span>🤝</span>
-            <span>Propose Trade</span>
+            <span>{isItemAvailable ? 'Propose Trade' : 'Item Already Traded'}</span>
           </button>
         </>
       )}
@@ -357,9 +412,16 @@ export default function ListingDetails({ id, initialData }) {
           <div className="space-y-6">
             <div className="bg-gray-800/50 backdrop-blur-lg rounded-xl p-6 shadow-xl">
               <div className="flex justify-between items-center mb-4">
-                <h1 className="text-3xl font-bold text-white">
-                  {listing?.title}
-                </h1>
+                <div>
+                  <h1 className="text-3xl font-bold text-white mb-2">
+                    {listing?.title}
+                  </h1>
+                  {!isItemAvailable && (
+                    <span className="px-3 py-1 bg-gray-500/80 text-white text-sm rounded-full">
+                      Traded
+                    </span>
+                  )}
+                </div>
                 <span
                   onClick={handleFavourite}
                   className="text-2xl cursor-pointer"

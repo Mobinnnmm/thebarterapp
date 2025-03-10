@@ -19,14 +19,30 @@ export async function GET(request) {
       return new Response(JSON.stringify({ error: "User not found" }), { status: 404 });
     }
 
-    const items = await ItemListing.find({ _id: { $in: user.listedItems } });
-    const favourites = await ItemListing.find({ _id: { $in: user.favourites }});
+    // Only fetch items that are available
+    const items = await ItemListing.find({ 
+      _id: { $in: user.listedItems },
+      status: 'Available' // Only get available items
+    });
+
+    // For favourites, also only show available items
+    const favourites = await ItemListing.find({ 
+      _id: { $in: user.favourites },
+      status: 'Available'
+    });
+
+    // Fetch traded items
+    const tradedItems = await ItemListing.find({
+      _id: { $in: user.listedItems },
+      status: 'Traded'
+    });
 
     return new Response(
       JSON.stringify({
         user,
         items, // full item docs
         favourites,
+        tradedItems,
       }),
       { status: 200 }
     );

@@ -14,6 +14,7 @@ function TradeSummaryForm() {
   const { user } = useAuth();
   const [selectedItem, setSelectedItem] = useState(null);
   const [targetItem, setTargetItem] = useState(null);
+  const [targetUserEmail, setTargetUserEmail] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -33,39 +34,36 @@ function TradeSummaryForm() {
         setError(null);
 
         // Validate IDs
-        if (!selectedItemId || !targetItemId) {
-          throw new Error('Missing item IDs');
+        if (!selectedItemId || !targetItemId || !targetUserId) {
+          throw new Error('Missing required IDs');
         }
 
         console.log('Fetching items:', { selectedItemId, targetItemId });
 
-        // Fetch both items in parallel
-        const [selectedRes, targetRes] = await Promise.all([
+        // Fetch items and target user data in parallel
+        const [selectedRes, targetRes, targetUserRes] = await Promise.all([
           fetch(`/api/listing/${selectedItemId}`),
-          fetch(`/api/listing/${targetItemId}`)
+          fetch(`/api/listing/${targetItemId}`),
+          fetch(`/api/user/${targetUserId}`)
         ]);
 
-        // Handle errors for each request individually
-        if (!selectedRes.ok) {
-          const selectedError = await selectedRes.json();
-          throw new Error(`Failed to fetch selected item: ${selectedError.error}`);
-        }
-
-        if (!targetRes.ok) {
-          const targetError = await targetRes.json();
-          throw new Error(`Failed to fetch target item: ${targetError.error}`);
+        // Handle errors for each request
+        if (!selectedRes.ok || !targetRes.ok || !targetUserRes.ok) {
+          throw new Error('Failed to fetch required data');
         }
 
         // Parse responses
-        const [selectedData, targetData] = await Promise.all([
+        const [selectedData, targetData, targetUserData] = await Promise.all([
           selectedRes.json(),
-          targetRes.json()
+          targetRes.json(),
+          targetUserRes.json()
         ]);
 
         setSelectedItem(selectedData);
         setTargetItem(targetData);
+        setTargetUserEmail(targetUserData.email);
       } catch (error) {
-        console.error('Error fetching items:', error);
+        console.error('Error fetching data:', error);
         setError(error.message);
       } finally {
         setIsLoading(false);
@@ -79,7 +77,6 @@ function TradeSummaryForm() {
     try {
       setError(null);
       
-      // Debug log all the values
       const tradeData = {
         proposerId: user?._id,
         targetUserId: targetUserId,
@@ -89,15 +86,10 @@ function TradeSummaryForm() {
       
       // Validate all required fields
       if (!user?._id || !targetUserId || !selectedItemId || !targetItemId) {
-        throw new Error(`Missing required fields: ${JSON.stringify({
-          userId: !!user?._id,
-          targetUserId: !!targetUserId,
-          selectedItemId: !!selectedItemId,
-          targetItemId: !!targetItemId
-        })}`);
+        throw new Error('Missing required fields for trade');
       }
       
-      const response = await fetch('/api/trade/create', {  // Updated endpoint to match your route
+      const response = await fetch('/api/trade/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -108,11 +100,26 @@ function TradeSummaryForm() {
       const data = await response.json();
 
       if (!response.ok) {
-        console.error('Trade creation failed:', data);
         throw new Error(data.error || 'Failed to create trade');
       }
+
+      // Create notification for the target user
+      const notificationResponse = await fetch('/api/Notifications/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userID: targetUserId,
+          type: 'TRADE_PROPOSED',
+          content: `${user.username} wants to trade their "${selectedItem?.title}" for your "${targetItem?.title}". Check your received offers!`
+        })
+      });
+
+      if (!notificationResponse.ok) {
+        console.error('Failed to create notification');
+      }
       
-      // Redirect to the trade view page
       alert("Trade offer sent");
       router.push(`/dashboard`);
     } catch (error) {

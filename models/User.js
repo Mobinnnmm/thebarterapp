@@ -36,10 +36,6 @@ const UserSchema = new mongoose.Schema({
     type: [String],
     default: []
   },
-  notifications: {
-    type: [String],
-    default: []
-  },
   supportTickets: {
     type: [String],
     default: []
@@ -52,7 +48,7 @@ const UserSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
-  // New field: track user’s own items
+  // New field: track user's own items
   listedItems: {
     type: [String], // array of ItemListing IDs
     default: []
@@ -76,4 +72,6 @@ const UserSchema = new mongoose.Schema({
   }
 });
 
-export default mongoose.models.User || mongoose.model('User', UserSchema);
+const User = mongoose.models.User || mongoose.model('User', UserSchema);
+
+export default User;

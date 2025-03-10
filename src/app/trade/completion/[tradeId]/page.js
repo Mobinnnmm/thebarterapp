@@ -15,6 +15,8 @@ export default function CompletionPage() {
     const [trade, setTrade] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [proposerEmail, setProposerEmail] = useState(null);
+    const [targetUserEmail, setTargetUserEmail] = useState(null);
 
     useEffect(() => {
         const fetchTradeDetails = async () => {
@@ -30,6 +32,21 @@ export default function CompletionPage() {
 
                 if (data.success) {
                     setTrade(data.trade);
+                    
+                    // Fetch both users' emails in parallel
+                    const [proposerRes, targetRes] = await Promise.all([
+                        fetch(`/api/user/${data.trade.proposerId._id}`),
+                        fetch(`/api/user/${data.trade.targetUserId._id}`)
+                    ]);
+
+                    if (proposerRes.ok && targetRes.ok) {
+                        const [proposerData, targetData] = await Promise.all([
+                            proposerRes.json(),
+                            targetRes.json()
+                        ]);
+                        setProposerEmail(proposerData.email);
+                        setTargetUserEmail(targetData.email);
+                    }
                 } else {
                     setError(data.error || 'Failed to fetch trade details');
                 }

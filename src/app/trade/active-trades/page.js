@@ -147,9 +147,12 @@ export default function ActiveTrades() {
                                 </div>
                                 
                                 <div className="mt-4">
-                                    {trade.currentProposal && trade.currentProposal.proposedBy && (
+                                    {trade.currentProposal?.proposedBy && (
                                         <p className="text-sm text-gray-600">
-                                            Latest proposal by: {trade.currentProposal.proposedBy.username || 'Unknown User'}
+                                            Latest proposal by: {
+                                                trade.currentProposal.proposedBy?.username 
+                                                || (trade.currentProposal.proposedBy?._id === user._id ? 'You' : 'Unknown User')
+                                            }
                                         </p>
                                     )}
                                     <p className="text-sm text-gray-600">

@@ -8,7 +8,8 @@ import { useState, useEffect } from "react"
 import { use } from 'react'
 import Image from 'next/image';
 import Link from 'next/link';
-import { FaArrowLeft, FaCalendarAlt, FaMapMarkerAlt, FaInfoCircle } from 'react-icons/fa';
+import { FaArrowLeft, FaCalendarAlt, FaMapMarkerAlt, FaInfoCircle, FaExchangeAlt } from 'react-icons/fa';
+import Notification from "../../../../../models/Notifications";
 
 export default function InitialOfferPage({ params }) {
     const router = useRouter();
@@ -82,6 +83,7 @@ export default function InitialOfferPage({ params }) {
         setIsSubmitting(true);
 
         try {
+            // Submit the proposal
             const response = await fetch(`/api/trade/${tradeId}/initial-offer`, {
                 method: 'POST',
                 headers: {
@@ -89,156 +91,191 @@ export default function InitialOfferPage({ params }) {
                     'Authorization': `Bearer ${user.token}`
                 },
                 body: JSON.stringify({
-                    meetingDate,
-                    meetingLocation,
-                    additionalInstructions
+                    meetingDetails: {
+                        date: meetingDate,
+                        location: meetingLocation,
+                        instructions: additionalInstructions
+                    }
                 })
             });
 
             const data = await response.json();
 
-            if (data.success) {
-                alert('Offer submitted successfully! You can view it in the active trades tab.');
-                router.push('/trade/active-trades');
-            } else {
-                alert(data.error || 'Failed to submit offer');
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to submit proposal');
             }
-        } catch (err) {
-            console.error(err);
-            alert('Failed to submit offer');
+
+            // Create notification for the other user
+            const notificationResponse = await fetch('/api/Notifications/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    userID: trade.proposerId._id === user._id ? trade.targetUserId._id : trade.proposerId._id,
+                    type: 'OFFER_ACCEPTED',
+                    content: `${user.username} has accepted your trade offer and proposed a meeting. Check the details!`
+                })
+            });
+
+            if (!notificationResponse.ok) {
+                console.error('Failed to create notification');
+            }
+
+            router.push(`/trade/negotiate/${tradeId}`);
+        } catch (error) {
+            console.error('Error:', error);
+            setError(error.message);
         } finally {
             setIsSubmitting(false);
         }
     };
 
     return (
-        <div className="container mx-auto p-4 max-w-4xl bg-gray-100 min-h-screen">
-            <Link href="/trade/recieved-offers" className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-6">
-                <FaArrowLeft className="mr-2" /> Back to Offers
-            </Link>
+        <div className="min-h-screen bg-gradient-to-br from-gray-100 via-white to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-4xl mx-auto">
+                <Link href="/trade/recieved-offers" className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-6">
+                    <FaArrowLeft className="mr-2" /> Back to Offers
+                </Link>
 
-            <div className="bg-white rounded-xl shadow-lg p-6">
-                <h1 className="text-2xl font-bold mb-6 text-gray-800">Propose Meeting Details</h1>
+                <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
+                    <h1 className="text-2xl font-bold mb-6 text-gray-900">Propose Meeting Details</h1>
 
-                {/* Trade Summary Section */}
-                <div className="mb-8 p-4 bg-gray-50/80 rounded-lg border border-gray-200">
-                    <h2 className="text-lg font-semibold mb-4 text-gray-800">Trade Summary</h2>
-                    <div className="grid md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                            <p className="text-sm text-gray-600">Trading with:</p>
-                            <div className="flex items-center">
-                                <div className="w-10 h-10 relative rounded-full overflow-hidden mr-3">
-                                    <Image
-                                        src={otherUser?.profilePicture || defaultAvatar}
-                                        alt={otherUser?.username || 'User'}
-                                        fill
-                                        className="object-cover"
-                                        onError={(e) => {
-                                            e.target.src = defaultAvatar;
-                                        }}
-                                    />
+                    {/* Trade Summary Section */}
+                    <div className="mb-8 p-6 bg-gray-50 rounded-lg border border-gray-200">
+                        <h2 className="text-xl font-semibold mb-4 text-gray-900">Trade Summary</h2>
+                        <div className="grid md:grid-cols-2 gap-8">
+                            {/* Trading Partner Info */}
+                            <div className="space-y-3">
+                                <p className="text-sm font-medium text-gray-900">Trading with:</p>
+                                <div className="flex items-center p-3 bg-white rounded-lg border border-gray-100 shadow-sm">
+                                    <div className="w-12 h-12 relative rounded-full overflow-hidden mr-3">
+                                        <Image
+                                            src={otherUser?.profilePicture || defaultAvatar}
+                                            alt={otherUser?.username || 'User'}
+                                            fill
+                                            className="object-cover"
+                                            onError={(e) => {
+                                                e.target.src = defaultAvatar;
+                                            }}
+                                        />
+                                    </div>
+                                    <span className="font-medium text-gray-900">{otherUser?.username}</span>
                                 </div>
-                                <span className="font-medium">{otherUser?.username}</span>
                             </div>
-                        </div>
-                        <div className="space-y-2">
-                            <p className="text-sm text-gray-600">Items involved:</p>
-                            <div className="flex items-center space-x-4">
-                                <div className="w-16 h-16 relative rounded-lg overflow-hidden">
-                                    <Image
-                                        src={trade.proposedItemId?.images?.[0] || defaultAvatar}
-                                        alt={trade.proposedItemId?.title || 'Proposed Item'}
-                                        fill
-                                        className="object-cover"
-                                    />
-                                </div>
-                                <span className="text-2xl text-gray-400">↔</span>
-                                <div className="w-16 h-16 relative rounded-lg overflow-hidden">
-                                    <Image
-                                        src={trade.targetItemId?.images?.[0] || defaultAvatar}
-                                        alt={trade.targetItemId?.title || 'Target Item'}
-                                        fill
-                                        className="object-cover"
-                                    />
+
+                            {/* Items Info */}
+                            <div className="space-y-3">
+                                <p className="text-sm font-medium text-gray-900">Items to trade:</p>
+                                <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-100 shadow-sm">
+                                    <div className="flex items-center space-x-6">
+                                        <div className="space-y-1">
+                                            <div className="w-20 h-20 relative rounded-lg overflow-hidden border border-gray-200">
+                                                <Image
+                                                    src={trade.proposedItemId?.images?.[0] || defaultAvatar}
+                                                    alt={trade.proposedItemId?.title || 'Your Item'}
+                                                    fill
+                                                    className="object-cover"
+                                                />
+                                            </div>
+                                            <p className="text-xs text-center text-gray-700">Your item</p>
+                                        </div>
+                                        <FaExchangeAlt className="text-gray-400 text-xl" />
+                                        <div className="space-y-1">
+                                            <div className="w-20 h-20 relative rounded-lg overflow-hidden border border-gray-200">
+                                                <Image
+                                                    src={trade.targetItemId?.images?.[0] || defaultAvatar}
+                                                    alt={trade.targetItemId?.title || 'Their Item'}
+                                                    fill
+                                                    className="object-cover"
+                                                />
+                                            </div>
+                                            <p className="text-xs text-center text-gray-700">Their item</p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    {/* Meeting Details Form */}
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        <div className="bg-white p-6 rounded-lg border border-gray-200">
+                            <div className="space-y-6">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-900 mb-2">
+                                        <FaCalendarAlt className="inline-block mr-2 text-blue-600" />
+                                        Proposed Date and Time
+                                    </label>
+                                    <input
+                                        type="datetime-local"
+                                        value={meetingDate}
+                                        onChange={(e) => setMeetingDate(e.target.value)}
+                                        required
+                                        className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-gray-900"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-900 mb-2">
+                                        <FaMapMarkerAlt className="inline-block mr-2 text-red-600" />
+                                        Meeting Location
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={meetingLocation}
+                                        onChange={(e) => setMeetingLocation(e.target.value)}
+                                        required
+                                        placeholder="Enter a public meeting place"
+                                        className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-gray-900 placeholder-gray-500"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-900 mb-2">
+                                        <FaInfoCircle className="inline-block mr-2 text-green-600" />
+                                        Additional Instructions (Optional)
+                                    </label>
+                                    <textarea
+                                        value={additionalInstructions}
+                                        onChange={(e) => setAdditionalInstructions(e.target.value)}
+                                        placeholder="Any specific instructions or details about the meeting..."
+                                        className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors h-32 resize-none text-gray-900 placeholder-gray-500"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Safety Tips */}
+                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                            <h3 className="text-sm font-semibold text-yellow-900 mb-2">Safety Tips</h3>
+                            <ul className="text-sm text-yellow-800 space-y-1">
+                                <li>• Always meet in a public, well-lit location</li>
+                                <li>• Consider meeting during daylight hours</li>
+                                <li>• Bring a friend or tell someone about your meeting</li>
+                                <li>• Trust your instincts - if something feels off, cancel the meeting</li>
+                            </ul>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex justify-end space-x-4 pt-4 border-t border-gray-200">
+                            <button
+                                type="button"
+                                className="px-6 py-2 bg-white text-gray-700 rounded-lg hover:bg-gray-50 transition-colors border border-gray-300"
+                                onClick={() => router.back()}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={isSubmitting}
+                                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 shadow-sm"
+                            >
+                                {isSubmitting ? 'Sending...' : 'Send Proposal'}
+                            </button>
+                        </div>
+                    </form>
                 </div>
-
-                {/* Meeting Details Form */}
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            <FaCalendarAlt className="inline-block mr-2 text-blue-500" />
-                            Proposed Date and Time
-                        </label>
-                        <input
-                            type="datetime-local"
-                            value={meetingDate}
-                            onChange={(e) => setMeetingDate(e.target.value)}
-                            required
-                            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            <FaMapMarkerAlt className="inline-block mr-2 text-red-500" />
-                            Meeting Location
-                        </label>
-                        <input
-                            type="text"
-                            value={meetingLocation}
-                            onChange={(e) => setMeetingLocation(e.target.value)}
-                            required
-                            placeholder="Enter a public meeting place"
-                            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            <FaInfoCircle className="inline-block mr-2 text-green-500" />
-                            Additional Instructions (Optional)
-                        </label>
-                        <textarea
-                            value={additionalInstructions}
-                            onChange={(e) => setAdditionalInstructions(e.target.value)}
-                            placeholder="Any specific instructions or details about the meeting..."
-                            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors h-32 resize-none bg-white"
-                        />
-                    </div>
-
-                    {/* Safety Tips */}
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-6">
-                        <h3 className="text-sm font-semibold text-yellow-800 mb-2">Safety Tips</h3>
-                        <ul className="text-sm text-yellow-700 space-y-1">
-                            <li>• Always meet in a public, well-lit location</li>
-                            <li>• Consider meeting during daylight hours</li>
-                            <li>• Bring a friend or tell someone about your meeting</li>
-                            <li>• Trust your instincts - if something feels off, cancel the meeting</li>
-                        </ul>
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="flex justify-end space-x-4 mt-8 pt-4 border-t border-gray-200">
-                        <button
-                            type="button"
-                            className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors border border-gray-300"
-                            onClick={() => router.back()}
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="submit"
-                            disabled={isSubmitting}
-                            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm disabled:opacity-50"
-                        >
-                            {isSubmitting ? 'Sending...' : 'Send Proposal'}
-                        </button>
-                    </div>
-                </form>
             </div>
         </div>
     );

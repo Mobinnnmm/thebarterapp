@@ -33,6 +33,7 @@ export async function GET(req, props) {
     .populate('targetUserId')
     .populate('proposedItemId')
     .populate('targetItemId')
+    .populate('currentProposal.proposedBy')
     .sort({ updatedAt: -1 });
     
     return NextResponse.json({

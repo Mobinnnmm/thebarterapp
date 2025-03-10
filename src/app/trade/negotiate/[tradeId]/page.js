@@ -209,21 +209,24 @@ export default function NegotiatePage() {
         String(trade.targetUserId._id) === String(user._id);
 
     const formatDateTime = (date, time) => {
-        if (!date || !time) return 'Date and time not specified';
+        if (!date) return 'Date not specified';
         try {
             const formattedDate = new Date(date).toLocaleDateString();
-            // Convert 24h time to 12h format
-            const [hours, minutes] = time.split(':');
-            const timeStr = new Date(0, 0, 0, hours, minutes)
-                .toLocaleTimeString('en-US', { 
-                    hour: 'numeric', 
-                    minute: '2-digit', 
-                    hour12: true 
-                });
-            return `${formattedDate} at ${timeStr}`;
+            // If time exists, add it to the output
+            if (time) {
+                const [hours, minutes] = time.split(':');
+                const timeStr = new Date(0, 0, 0, hours, minutes)
+                    .toLocaleTimeString('en-US', { 
+                        hour: 'numeric', 
+                        minute: '2-digit', 
+                        hour12: true 
+                    });
+                return `${formattedDate} at ${timeStr}`;
+            }
+            return formattedDate;
         } catch (error) {
             console.error('Error formatting date/time:', error);
-            return 'Invalid date or time format';
+            return 'Invalid date format';
         }
     };
 
@@ -288,13 +291,18 @@ export default function NegotiatePage() {
                                     <div className="flex items-center space-x-2">
                                         <Image
                                             src={trade.currentProposal.proposedBy?.profilePicture || '/default-avatar.avif'}
-                                            alt={`${trade.currentProposal.proposedBy?.username || 'User'}'s profile picture`}
+                                            alt="Profile picture"
                                             width={32}
                                             height={32}
                                             className="rounded-full"
                                         />
                                         <span className="text-white">
-                                            {trade.currentProposal.proposedBy?.username || 'Unknown'}&apos;s proposal
+                                            {(() => {
+                                                const proposedBy = trade.currentProposal.proposedBy;
+                                                if (!proposedBy) return 'Unknown user';
+                                                if (proposedBy._id === user._id) return 'Your';
+                                                return proposedBy.username || 'Unknown user';
+                                            })()}&apos;s proposal
                                         </span>
                                     </div>
                                     <span className="text-sm text-gray-400">
@@ -307,18 +315,18 @@ export default function NegotiatePage() {
                                         <FaCalendarAlt className="text-indigo-400" />
                                         <span className="text-white">
                                             {formatDateTime(
-                                                trade.currentProposal?.meetingDetails?.date || '', 
-                                                trade.currentProposal?.meetingDetails?.time || ''
+                                                trade.currentProposal.meetingDetails?.date,
+                                                trade.currentProposal.meetingDetails?.time
                                             )}
                                         </span>
                                     </div>
                                     <div className="flex items-center space-x-2">
                                         <FaMapMarkerAlt className="text-indigo-400" />
                                         <span className="text-white">
-                                            {trade.currentProposal?.meetingDetails?.location || 'Location not specified'}
+                                            {trade.currentProposal.meetingDetails?.location || 'Location not specified'}
                                         </span>
                                     </div>
-                                    {trade.currentProposal?.meetingDetails?.instructions && (
+                                    {trade.currentProposal.meetingDetails?.instructions && (
                                         <div className="flex items-start space-x-2">
                                             <FaInfoCircle className="text-indigo-400 mt-1" />
                                             <span className="text-white">

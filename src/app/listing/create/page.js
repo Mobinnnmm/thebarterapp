@@ -99,7 +99,7 @@ export default function CreateListingPage() {
       if (res.ok) {
         setMessage("✨ Listing created successfully!");
         setTimeout(() => {
-          router.push(`/profile`);
+          router.push(`/dashboard`);
         }, 2000);
       } else {
         setMessage(data.error || "Failed to create listing");

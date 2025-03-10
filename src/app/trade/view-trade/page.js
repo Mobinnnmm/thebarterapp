@@ -26,6 +26,7 @@ function ViewTradeForm({ tradeId }) {
   const [trade, setTrade] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [proposerEmail, setProposerEmail] = useState(null);
   const { user } = useAuth();
   const router = useRouter();
   const [isRejecting, setIsRejecting] = useState(false);
@@ -53,6 +54,13 @@ function ViewTradeForm({ tradeId }) {
         if (data.success) {
           setTrade(data.trade);
           setShowActions(data.trade.targetUserId._id === user._id && data.trade.status === 'pending');
+
+          // Fetch proposer's email
+          const proposerRes = await fetch(`/api/user/${data.trade.proposerId._id}`);
+          if (proposerRes.ok) {
+            const proposerData = await proposerRes.json();
+            setProposerEmail(proposerData.email);
+          }
         } else {
           setError(data.error);
         }
@@ -88,6 +96,22 @@ function ViewTradeForm({ tradeId }) {
       const data = await response.json();
 
       if (data.success) {
+        // Here's where you'll send the rejection email
+        // if (proposerEmail) {
+        //   await fetch('/api/email', {
+        //     method: 'POST',
+        //     headers: { 'Content-Type': 'application/json' },
+        //     body: JSON.stringify({
+        //       to: proposerEmail,
+        //       type: 'trade_rejected',
+        //       tradeDetails: {
+        //         proposedItem: trade.proposedItemId.title,
+        //         targetItem: trade.targetItemId.title
+        //       }
+        //     })
+        //   });
+        // }
+
         router.push('/trade/recieved-offers');
       } else {
         setUpdateError(data.error);
@@ -210,7 +234,7 @@ function ViewTradeForm({ tradeId }) {
                 entry.status === 'rejected' ? 'bg-red-100 text-red-800' :
                 'bg-yellow-100 text-yellow-800'
               }`}>
-                {entry.status.charAt(0).toUpperCase() + entry.status.slice(1)}
+                {entry.status ? entry.status.charAt(0).toUpperCase() + entry.status.slice(1) : 'Unknown'}
               </span>
             </div>
           </div>
@@ -262,7 +286,7 @@ function ViewTradeForm({ tradeId }) {
 
         <div className="grid md:grid-cols-2 gap-6 mb-6">
           <div className="border rounded-lg p-4 bg-gray-50/50">
-            <h3 className="font-medium mb-3">{isProposer ? "You&apos;re offering:" : "They&apos;re offering:"}</h3>
+            <h3 className="font-medium mb-3">{isProposer ? "You are offering:" : "They are offering:"}</h3>
             <div className="aspect-square relative mb-3">
               {renderItemImage(trade.proposedItemId, true)}
             </div>

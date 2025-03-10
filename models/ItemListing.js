@@ -43,7 +43,7 @@ const ItemListingSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    default: 'Available' // "Available", "InTrade", "Traded", "Deleted"
+    default: 'Available' // "Aavilable", "InTrade", "Traded", "Deleted"
   },
   views: {
     type: Number,
@@ -59,4 +59,6 @@ const ItemListingSchema = new mongoose.Schema({
   }
 });
 
-export default mongoose.models.ItemListing || mongoose.model('ItemListing', ItemListingSchema);
+const ItemListing = mongoose.models.ItemListing || mongoose.model('ItemListing', ItemListingSchema);
+
+export default ItemListing;

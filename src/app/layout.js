@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import "@/app/globals.css";
-import { useState, useEffect } from "react";
+import "./globals.css";
+import { useState, useEffect, useRef } from "react";
 import { AuthProvider, useAuth } from "../../context/AuthContext";
 import { useRouter } from "next/navigation";
 
@@ -12,6 +12,8 @@ function NavBar() {
   const [isDark, setIsDark] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const notificationRef = useRef(null);
 
   // Handle scroll effect
   useEffect(() => {
@@ -22,10 +24,30 @@ function NavBar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Add this useEffect for handling clicks outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+        setShowNotifications(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   const handleLogout = () => {
     logout();
     setIsMenuOpen(false);
     router.push('/');
+  };
+
+  // Modify the notification view all handler
+  const handleViewAllNotifications = () => {
+    setShowNotifications(false);
+    router.push('/notification');
   };
 
   return (
@@ -72,6 +94,51 @@ function NavBar() {
                 >
                   Trade
                 </Link>
+
+                <Link 
+                  href="/chat"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700/50 transition-all"
+                >
+                  Chat
+                </Link>
+
+                {/* Add Notification dropdown here */}
+                <div className="relative" ref={notificationRef}>
+                  <button
+                    onClick={() => setShowNotifications(!showNotifications)}
+                    className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700/50 transition-all flex items-center"
+                  >
+                    <span className="mr-1">🔔</span>
+                    Notifications
+                  </button>
+
+                  {/* Notification Dropdown */}
+                  {showNotifications && (
+                    <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-lg shadow-lg py-2 z-50">
+                      <div className="max-h-96 overflow-y-auto">
+                        {/* Example notifications - replace with actual notifications */}
+                        <div className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+                          <p className="text-sm text-gray-800 dark:text-gray-200">Static data for notifications</p>
+                          <p className="text-xs text-gray-500">2 hours ago</p>
+                        </div>
+                        <div className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+                          <p className="text-sm text-gray-800 dark:text-gray-200">Static data for notifications</p>
+                          <p className="text-xs text-gray-500">1 day ago</p>
+                        </div>
+                      </div>
+                      <div className="border-t border-gray-200 dark:border-gray-700 mt-2 pt-2 px-4">
+                        <button
+                          onClick={handleViewAllNotifications}
+                          className="w-full text-center text-sm text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 py-2"
+                        >
+                          View All Notifications
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
                 <button
                   onClick={handleLogout}
                   className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all transform hover:-translate-y-0.5"
@@ -125,7 +192,7 @@ function NavBar() {
       </div>
 
       {/* Mobile menu */}
-      <div className={`md:hidden transition-all duration-300 ease-in-out ${
+      <div className={`md:hidden fixed left-0 right-0 transition-all duration-300 ease-in-out ${
         isMenuOpen 
           ? 'opacity-100 translate-y-0' 
           : 'opacity-0 -translate-y-full pointer-events-none'
@@ -154,6 +221,27 @@ function NavBar() {
                 className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700/50 transition-all"
               >
                 Dashboard
+              </Link>
+              <Link 
+                href="/trade"
+                onClick={() => setIsMenuOpen(false)}
+                className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700/50 transition-all"
+              >
+                Trade
+              </Link>
+              <Link 
+                href="/chat"
+                onClick={() => setIsMenuOpen(false)}
+                className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700/50 transition-all"
+              >
+                Chat
+              </Link>
+              <Link 
+                href="/notification"
+                onClick={() => setIsMenuOpen(false)}
+                className="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-700/50 transition-all"
+              >
+                Notifications
               </Link>
               <button
                 onClick={handleLogout}
@@ -205,7 +293,7 @@ export default function RootLayout({ children }) {
       <body className="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 min-h-screen transition-colors duration-300">
         <AuthProvider>
           <NavBar />
-          <main className="pt-16 max-w-7xl mx-auto px-4 py-6">
+          <main className="pt-20 max-w-7xl mx-auto px-4 py-6">
             {children}
           </main>
         </AuthProvider>

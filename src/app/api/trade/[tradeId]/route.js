@@ -21,6 +21,7 @@ export async function GET(request, props) {
       .populate('targetItemId')
       .populate('proposerId', 'username profilePicture')
       .populate('targetUserId', 'username profilePicture')
+      .populate('currentProposal.proposedBy', 'username profilePicture')
       .populate({
         path: 'negotiationHistory',
         populate: {
