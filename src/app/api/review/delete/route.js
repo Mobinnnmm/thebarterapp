@@ -1,24 +1,42 @@
 // Delete review api endpoint
 
-import express from 'express';
+import { NextResponse } from 'next/server';
 import Review from '../../../../../models/Review.js';
+import { connectDB } from '../../../../../utils/database';
 
-const router = express.Router();
-
-// DELETE a review by ID
-router.delete('/:id', async (req, res) => {
+export async function DELETE(request) {
   try {
-    const { id } = req.params;
+    await connectDB();
+    
+    // Get the review ID from the URL or request body
+    const url = new URL(request.url);
+    const id = url.searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json(
+        { error: 'Review ID is required' },
+        { status: 400 }
+      );
+    }
+
     const deletedReview = await Review.findByIdAndDelete(id);
 
     if (!deletedReview) {
-      return res.status(404).json({ error: 'Review not found' });
+      return NextResponse.json(
+        { error: 'Review not found' },
+        { status: 404 }
+      );
     }
 
-    res.status(200).json({ message: 'Review deleted successfully' });
+    return NextResponse.json(
+      { message: 'Review deleted successfully' },
+      { status: 200 }
+    );
   } catch (error) {
-    res.status(500).json({ error: 'Error deleting review', details: error.message });
+    console.error('Error deleting review:', error);
+    return NextResponse.json(
+      { error: 'Error deleting review', details: error.message },
+      { status: 500 }
+    );
   }
-});
-
-export default router;
+}
