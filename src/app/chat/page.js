@@ -1,15 +1,28 @@
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useAuth } from '../../../context/AuthContext';
 import io from 'socket.io-client';
 
-export default function ChatPage() {
-  const { user } = useAuth();
+// Create a wrapper component that handles search params
+function ChatWrapper() {
   const searchParams = useSearchParams();
-  const roomId = searchParams.get('roomId');
-  
+  const [roomId, setRoomId] = useState(null);
+
+  useEffect(() => {
+    if (searchParams) {
+      const id = searchParams.get('roomId');
+      setRoomId(id);
+    }
+  }, [searchParams]);
+
+  return <ChatContent roomId={roomId} />;
+}
+
+// Main chat component that doesn't directly use useSearchParams
+function ChatContent({ roomId }) {
+  const { user } = useAuth();
   const [socket, setSocket] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
@@ -295,5 +308,23 @@ export default function ChatPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Loading component
+function LoadingView() {
+  return (
+    <div className="flex justify-center items-center min-h-screen">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
+    </div>
+  );
+}
+
+// Main export with Suspense boundary
+export default function ChatPage() {
+  return (
+    <Suspense fallback={<LoadingView />}>
+      <ChatWrapper />
+    </Suspense>
   );
 }
