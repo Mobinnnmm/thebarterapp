@@ -51,8 +51,8 @@ function ChatContent({ roomId }) {
       
       fetchMessages();
 
-      // Update socket connection to use environment variable
-      const socket = io(process.env.NEXT_PUBLIC_SOCKET_SERVER_URL || 'http://localhost:3003', {
+      // Update socket connection with correct port and path
+      const socket = io(process.env.NEXT_PUBLIC_SOCKET_SERVER_URL || 'http://localhost:3000', {
         path: '/api/socketio',
         query: { userId: user._id, roomId },
         transports: ['polling', 'websocket'],
@@ -63,8 +63,13 @@ function ChatContent({ roomId }) {
         reconnectionDelay: 1000
       });
 
+      // Add more detailed logging for debugging
       socket.on('connect', () => {
-        console.log('Connected to socket server');
+        console.log('Connected to socket server', socket.id);
+      });
+
+      socket.on('connect_error', (error) => {
+        console.error('Socket connection error:', error.message);
       });
 
       socket.on('receiveMessage', (message) => {
@@ -143,9 +148,27 @@ function ChatContent({ roomId }) {
       };
 
       try {
+        console.log('Attempting to send message:', messageData);
         setNewMessage(''); // Clear input immediately
         // Send directly through socket instead of REST API
         socket.emit('sendMessage', messageData);
+        console.log('Message emitted to server');
+        
+        // Add a temporary local message while waiting for server confirmation
+        const tempMessage = {
+          _id: 'temp-' + Date.now(),
+          content: messageData.content,
+          senderId: { _id: user._id, username: user.username },
+          chatId: roomId,
+          timestamp: new Date(),
+          isRead: false
+        };
+        
+        setMessages(prev => {
+          const newMessages = [...prev, tempMessage];
+          messagesRef.current = newMessages;
+          return newMessages;
+        });
       } catch (error) {
         console.error('Error sending message:', error);
       }
