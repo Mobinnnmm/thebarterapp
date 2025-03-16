@@ -28,6 +28,8 @@ function ChatContent({ roomId }) {
   const [newMessage, setNewMessage] = useState('');
   const [chatInfo, setChatInfo] = useState(null);
   const [conversations, setConversations] = useState([]);
+  // Add search state
+  const [searchQuery, setSearchQuery] = useState('');
   
   // Add a messages ref to track latest messages
   const messagesRef = useRef([]);
@@ -136,6 +138,16 @@ function ChatContent({ roomId }) {
     }
   };
 
+  // Filter conversations based on search query
+  const filteredConversations = conversations.filter(chat => {
+    const otherUser = user?._id === chat.proposer?._id ? chat.proposee : chat.proposer;
+    const username = otherUser?.username?.toLowerCase() || '';
+    const listingTitle = chat.listingId?.title?.toLowerCase() || '';
+    const query = searchQuery.toLowerCase();
+    
+    return username.includes(query) || listingTitle.includes(query);
+  });
+
   const sendMessage = async (e) => {
     e.preventDefault();
     if (newMessage.trim() && socket && roomId) {
@@ -187,6 +199,8 @@ function ChatContent({ roomId }) {
                 <input
                   type="text"
                   placeholder="Search conversations..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full px-4 py-2 rounded-lg bg-gray-700/50 border border-gray-600/50 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 />
                 <span className="absolute right-3 top-2.5 text-gray-400">🔍</span>
@@ -195,38 +209,44 @@ function ChatContent({ roomId }) {
 
             {/* Conversations List */}
             <div className="flex-1 overflow-y-auto">
-              {conversations.map((chat) => {
-                const otherUser = user._id === chat.proposer._id ? chat.proposee : chat.proposer;
-                
-                return (
-                  <div
-                    key={chat.roomId}
-                    className={`group p-4 hover:bg-gray-700/30 cursor-pointer flex items-center space-x-4 transition-all ${
-                      chat.roomId === roomId ? 'bg-gray-700/50 border-l-4 border-indigo-500' : ''
-                    }`}
-                    onClick={() => {
-                      window.location.href = `/chat?roomId=${chat.roomId}`;
-                    }}
-                  >
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500/10 to-purple-500/10 flex items-center justify-center text-2xl">
-                      👤
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex justify-between items-center">
-                        <h3 className="font-semibold text-gray-200 group-hover:text-indigo-400 transition-colors">
-                          {otherUser.username}
-                        </h3>
-                        <span className="text-xs text-gray-500">
-                          {new Date(chat.updatedAt).toLocaleDateString()}
-                        </span>
+              {filteredConversations.length > 0 ? (
+                filteredConversations.map((chat) => {
+                  const otherUser = user._id === chat.proposer._id ? chat.proposee : chat.proposer;
+                  
+                  return (
+                    <div
+                      key={chat.roomId}
+                      className={`group p-4 hover:bg-gray-700/30 cursor-pointer flex items-center space-x-4 transition-all ${
+                        chat.roomId === roomId ? 'bg-gray-700/50 border-l-4 border-indigo-500' : ''
+                      }`}
+                      onClick={() => {
+                        window.location.href = `/chat?roomId=${chat.roomId}`;
+                      }}
+                    >
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500/10 to-purple-500/10 flex items-center justify-center text-2xl">
+                        👤
                       </div>
-                      <p className="text-sm text-gray-400 truncate">
-                        {chat.listingId.title}
-                      </p>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex justify-between items-center">
+                          <h3 className="font-semibold text-gray-200 group-hover:text-indigo-400 transition-colors">
+                            {otherUser.username}
+                          </h3>
+                          <span className="text-xs text-gray-500">
+                            {new Date(chat.updatedAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-400 truncate">
+                          {chat.listingId.title}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })
+              ) : (
+                <div className="p-4 text-center text-gray-400">
+                  {searchQuery ? "No conversations match your search" : "No conversations yet"}
+                </div>
+              )}
             </div>
           </div>
 
