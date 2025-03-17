@@ -158,6 +158,7 @@ const handlePasswordChange = async (e) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId: user._id,
+          email: user.email,
           ...userInfo
         }),
       });
@@ -292,6 +293,19 @@ const handlePasswordChange = async (e) => {
                       onChange={(e) => setUserInfo({...userInfo, aboutMe: e.target.value})}
                       className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent h-32"
                       placeholder="Tell us about yourself..."
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      value={userInfo?.email || ""}
+                      onChange={(e) => setUserInfo({...userInfo, email: e.target.value})}
+                      className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      placeholder="Enter Your Email..."
                     />
                   </div>
 
