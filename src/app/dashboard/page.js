@@ -201,6 +201,12 @@ export default function DashboardPage() {
                 {userInfo?.aboutMe ? "Update Profile" : "Complete Profile"}
               </Link>
               <button
+                onClick={handleDeleteAccount}
+                className="px-4 py-2 rounded-lg bg-gradient-to-r from-red-500 to-red-700 text-white hover:from-red-600 hover:to-red-800 transition-all transform hover:-translate-y-0.5 shadow-lg hover:shadow-red-500/25"
+              >
+                Delete Profile
+              </button>
+              <button
                 onClick={handleCreateListing}
                 className="px-4 py-2 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600 transition-all transform hover:-translate-y-0.5 shadow-lg hover:shadow-emerald-500/25"
               >
@@ -335,6 +341,12 @@ export default function DashboardPage() {
                             className="flex-1 px-3 py-2 rounded-lg bg-gray-700/50 hover:bg-gray-700 text-gray-300 transition-colors text-sm"
                           >
                             Edit
+                          </button>
+                          <button
+                            onClick={() => handleDelete(item._id)}
+                            className="flex-1 px-3 py-2 rounded-lg bg-gray-700/50 hover:bg-gray-700 text-red-300 transition-colors text-sm"
+                          >
+                            Delete
                           </button>
                           <button
                             onClick={() => handleViewProposals(item._id)}
