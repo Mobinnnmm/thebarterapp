@@ -103,6 +103,7 @@ export default function InitialOfferPage({ params }) {
             if (!response.ok) {
                 throw new Error(data.error || 'Failed to submit proposal');
             }
+            
             // fixed
             // Create notification for the other user
             const notificationResponse = await fetch('/api/Notifications/create', {
@@ -119,6 +120,24 @@ export default function InitialOfferPage({ params }) {
 
             if (!notificationResponse.ok) {
                 console.error('Failed to create notification');
+            }
+            
+            // Send email notification
+            try {
+                const emailResponse = await fetch('/api/email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                if (!emailResponse.ok) {
+                    console.error('Failed to send email notification');
+                } else {
+                    console.log('Email notification sent successfully');
+                }
+            } catch (emailError) {
+                console.error('Error sending email notification:', emailError);
             }
 
             router.push(`/trade/negotiate/${tradeId}`);
