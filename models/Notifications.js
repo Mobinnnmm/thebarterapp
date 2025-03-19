@@ -1,5 +1,3 @@
-
-
 import mongoose from 'mongoose';
 
 const notificationSchema = new mongoose.Schema( {
@@ -25,6 +23,8 @@ const notificationSchema = new mongoose.Schema( {
     }
 })
 
-export default mongoose.models.Notification || mongoose.model('Notification', notificationSchema);
+const Notification = mongoose.models?.Notification || mongoose.model('Notification', notificationSchema);
+// fixed
+export default Notification;
 
 

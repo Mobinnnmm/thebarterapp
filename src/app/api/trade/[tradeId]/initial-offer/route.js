@@ -13,7 +13,16 @@ export async function POST(req, props) {
             return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
         }
 
-        const { meetingDate, meetingLocation, additionalInstructions } = await req.json();
+        // Get the request body - note we're expecting meetingDetails object directly
+        const { meetingDetails } = await req.json();
+        
+        // Validate required fields
+        if (!meetingDetails || !meetingDetails.date || !meetingDetails.location) {
+            return NextResponse.json({ 
+                success: false, 
+                error: "Meeting date and location are required" 
+            }, { status: 400 });
+        }
         
         await connectToDB();
 
@@ -29,12 +38,13 @@ export async function POST(req, props) {
         trade.status = 'negotiating';
         
         // Add to negotiation history
+        // fixed
         trade.negotiationHistory.push({
             proposedBy: trade.targetUserId._id, // Since this is the initial offer from target user
             meetingDetails: {
-                date: meetingDate,
-                location: meetingLocation,
-                instructions: additionalInstructions
+                date: meetingDetails.date,
+                location: meetingDetails.location,
+                instructions: meetingDetails.instructions || ''
             },
             status: 'pending'
         });
@@ -43,9 +53,9 @@ export async function POST(req, props) {
         trade.currentProposal = {
             proposedBy: trade.targetUserId._id,
             meetingDetails: {
-                date: meetingDate,
-                location: meetingLocation,
-                instructions: additionalInstructions
+                date: meetingDetails.date,
+                location: meetingDetails.location,
+                instructions: meetingDetails.instructions || ''
             },
             status: 'pending'
         };

@@ -9,7 +9,6 @@ import { use } from 'react'
 import Image from 'next/image';
 import Link from 'next/link';
 import { FaArrowLeft, FaCalendarAlt, FaMapMarkerAlt, FaInfoCircle, FaExchangeAlt } from 'react-icons/fa';
-import Notification from "../../../../../models/Notifications";
 
 export default function InitialOfferPage({ params }) {
     const router = useRouter();
@@ -104,7 +103,7 @@ export default function InitialOfferPage({ params }) {
             if (!response.ok) {
                 throw new Error(data.error || 'Failed to submit proposal');
             }
-
+            // fixed
             // Create notification for the other user
             const notificationResponse = await fetch('/api/Notifications/create', {
                 method: 'POST',
