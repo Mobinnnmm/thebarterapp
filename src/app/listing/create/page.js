@@ -6,6 +6,7 @@ import { useAuth } from "../../../../context/AuthContext";
 import Link from "next/link";
 import { FiPlus, FiImage, FiX } from 'react-icons/fi';
 import Categories from "../components/Categories";
+import Map from "../../../components/Map";
 
 export default function CreateListingPage() {
   const { user } = useAuth();
@@ -19,7 +20,7 @@ export default function CreateListingPage() {
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedTags, setSelectedTags] = useState([]);
-
+  const [selectedCoords, setSelectedCoords] = useState([]);
 
   useEffect(() => {
       async function fetchCategories() {
@@ -92,6 +93,10 @@ export default function CreateListingPage() {
           selectedCategory,
           selectedTags,
           images: images.filter(img => img.trim() !== ""),
+          location: {
+            type: "Point",
+            coordinates: [selectedCoords[0], selectedCoords[1]], 
+          }
         }),
       });
       const data = await res.json();
@@ -126,6 +131,11 @@ export default function CreateListingPage() {
     if (images.length > 1) {
       setImages(images.filter((_, i) => i !== index));
     }
+  };
+
+  const handleLocationSelect = (coords) => {
+    setSelectedCoords(coords);
+    console.log(coords)
   };
 
   return (
@@ -276,9 +286,14 @@ export default function CreateListingPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Images
+                Location
               </label>
               <div className="space-y-3">
+              <Map onSelectLocation={handleLocationSelect} /> 
+
+              {selectedCoords && (
+                <p>Selected Coordinates: {selectedCoords[0]}, {selectedCoords[1]}</p>
+              )}
             </div>
             </div>
 

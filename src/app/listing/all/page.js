@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "../../../../context/AuthContext";
+import SortMap from "../../../components/SortMap";
 
 export default function AllListingsPage() {
   const { user } = useAuth();
@@ -12,6 +13,20 @@ export default function AllListingsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
 
+  const [selectedCoords, setSelectedCoords] = useState([]);
+  const [selectedRadius, setSelectedRadius] = useState();
+
+  const handleLocationSelect = (coords) => {
+    setSelectedCoords(coords);
+    console.log(coords)
+  };
+
+  const handleRadiusSelect = (radius) => {
+    setSelectedRadius(radius);
+    console.log(radius)
+  };
+
+  
   useEffect(() => {
     async function fetchListings() {
       try {
@@ -40,6 +55,7 @@ export default function AllListingsPage() {
   const [selected, setSelected] = useState({});
   const [expanded, setExpanded] = useState(new Set());
   const [isCollapsed, setIsCollapsed] = useState(true);
+  const [isMapCollapsed, setIsMapCollapsed] = useState(false);
   const [allSelected, setAllSelected] = useState(true); // New state for "Select All" toggle
 
   useEffect(() => {
@@ -89,6 +105,25 @@ export default function AllListingsPage() {
     });
   };
 
+  const haversineDistance = (lat1, lon1, lat2, lon2, radius) => {
+    const dLat = (lat2 - lat1) * (Math.PI / 180);
+    const dLon = (lon2 - lon1) * (Math.PI / 180);
+  
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * (Math.PI / 180)) *
+        Math.cos(lat2 * (Math.PI / 180)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  
+    // Assuming the distance will be in meters if radius is in meters
+    const distance = 6371000 * c; // This is the distance in meters
+  
+    return distance <= radius; // Check if the calculated distance is within the specified radius
+  };
+  
+
   // Toggle Select All
   const toggleSelectAll = () => {
     if (allSelected) {
@@ -99,20 +134,27 @@ export default function AllListingsPage() {
     setAllSelected(!allSelected);
   };
 
+
   const filteredListings = listings.filter((listing) => {
     const matchesSearch = listing.title.toLowerCase().includes(searchTerm.toLowerCase());
-  
+    
     // If no categories are selected, show all listings
     if (Object.keys(selected).length === 0) return matchesSearch;
-  
-    const matchesCategory = listing.category in selected; // Check if the listing's category is selected
-  
+    
+    // Check if the listing's category is selected
+    const matchesCategory = listing.category in selected; 
     const matchesTags =
       selected[listing.category]?.size === 0 || // If category is selected but no specific tags, include all listings in that category
       listing?.tags.some((tag) => selected[listing.category]?.has(tag)); // Otherwise, match at least one selected tag
   
-    return matchesSearch && matchesCategory && matchesTags;
+    const matchesLocation =
+      !selectedCoords.length || 
+      // console.log(listing.location.coordinates + ":)")
+      haversineDistance(listing.location.coordinates[0], listing.location.coordinates[1], selectedCoords[0], selectedCoords[1], selectedRadius);
+  
+    return matchesSearch && matchesCategory && matchesTags && matchesLocation;
   });
+  
 
   if (errorMsg) {
     return (
@@ -171,7 +213,7 @@ export default function AllListingsPage() {
 
             {/* change later */}
 
-            <div>
+      <div>
       {!isCollapsed && (
         <div>
           <div className="mt-16 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
@@ -217,11 +259,37 @@ export default function AllListingsPage() {
         {isCollapsed ? 'Show Filters' : 'Hide Filters'}
       </button>
     </div>
+    
+     {/* Show Map */}
 
+     {!isMapCollapsed && (
+        <center className="pt-6">
+          <SortMap  onSelectLocation={handleLocationSelect} onSelectRadius={handleRadiusSelect}/>
+        </center>
+    )}
+    <div className="pt-6">
+  
+      <button
+        onClick={() => setIsMapCollapsed(!isMapCollapsed)}
+        className="mt-0 text-gray-200 hover:text-white p-2 rounded-full bg-gray-600/50 hover:bg-gray-700 transition-all"
+      >
+        {isMapCollapsed ? 'Show Map' : 'Hide Map'}
+      </button> 
 
+    </div>
+    
+
+    {/* Sort By */}
+    <div className="pt-6">
+  
+      <p>Sort by</p>
+      <p>x</p>
+
+    </div>
 
             {/* <CategoryTagSelector></CategoryTagSelector> */}
           </div>
+          
         </div>
         
       </div>
