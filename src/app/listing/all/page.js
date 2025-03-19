@@ -280,12 +280,6 @@ export default function AllListingsPage() {
     
 
     {/* Sort By */}
-    <div className="pt-6">
-  
-      <p>Sort by</p>
-      <p>x</p>
-
-    </div>
 
             {/* <CategoryTagSelector></CategoryTagSelector> */}
           </div>
