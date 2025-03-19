@@ -29,12 +29,13 @@ const ItemListingSchema = new mongoose.Schema({
   location: {
     type: {
       type: String,
-      enum: ['Point'], // 'location.type' must be 'Point'
-      default: 'Point'
+      enum: ["Point"], 
+      default: "Point"
     },
     coordinates: {
-      type: [Number], // [longitude, latitude]
-      default: [0, 0]
+      type: [Number], 
+      default: [ -79.379, 43.652 ], 
+      index: "2dsphere" 
     }
   },
   datePosted: {

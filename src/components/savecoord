@@ -1,0 +1,12 @@
+function saveCoordinates(lat, lng) {
+    localStorage.setItem("savedCoords", JSON.stringify({ lat, lng }));
+}
+
+function getSavedCoordinates() {
+    const savedCoords = localStorage.getItem("savedCoords");
+    if (savedCoords) {
+        return JSON.parse(savedCoords);
+    } else {
+        return null; // Or return a default value like { lat: 0, lng: 0 }
+    }
+}

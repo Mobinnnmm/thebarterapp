@@ -57,6 +57,7 @@ export async function PUT(req) {
         existingListing.description = description || existingListing.description;
         existingListing.category = category || existingListing.category;
         existingListing.tags = tags || existingListing.tags;
+        existingListing.location.coordinates = body.location.coordinates || existingListing.location.coordinates;
 
         // Save the updated listing
         await existingListing.save();

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useAuth } from "../../../../../context/AuthContext";
 import Link from "next/link";
+import EditMap from "../../../../components/EditMap";
 
 export default function EditListingPage() {
   const { user } = useAuth();
@@ -31,6 +32,7 @@ export default function EditListingPage() {
         }
         const data = await response.json();
         setListingInfo(data);  // Set the fetched data
+        setSelectedCoords(data.location.coordinates);
         setIsLoading(false);
       } catch (err) {
         console.error("Error fetching listing:", err);
@@ -45,6 +47,7 @@ export default function EditListingPage() {
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedTags, setSelectedTags] = useState([]);
+  const [selectedCoords, setSelectedCoords] = useState([]);
 
   useEffect(() => {
     async function fetchCategories() {
@@ -100,6 +103,11 @@ export default function EditListingPage() {
     }
   };
 
+  const handleLocationSelect = (coords) => {
+    setSelectedCoords(coords);
+    console.log(coords)
+  };
+
   const selectedCategoryData = categories.find((cat) => cat._id === selectedCategory);
 
   const handleChange = (e) => {
@@ -113,6 +121,8 @@ export default function EditListingPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
+
+    listingInfo.location.coordinates = selectedCoords;
 
     try {
       const res = await fetch(`/api/listing/update`, {
@@ -228,6 +238,9 @@ export default function EditListingPage() {
                   </div>
                 </div>
               )}
+            </div>
+            <div className="pt-4">
+            <EditMap coords={selectedCoords} onSelectLocation={handleLocationSelect}/>
             </div>
           </div>
 

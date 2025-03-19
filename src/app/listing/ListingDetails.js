@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "../../../context/AuthContext";
+import StaticMap from "../../components/StaticMap";
+
 export default function ListingDetails({ id, initialData }) {
   const { user } = useAuth();
   const router = useRouter();
@@ -238,6 +240,7 @@ export default function ListingDetails({ id, initialData }) {
         <span className="text-2xl mb-2">⚠️</span>
         <span className="text-sm text-gray-300">Report</span>
       </button>
+
     </div>
   );
 
@@ -290,6 +293,7 @@ export default function ListingDetails({ id, initialData }) {
         </>
       )}
     </div>
+    
   );
 
   // Update the Share and Report section
@@ -499,6 +503,9 @@ export default function ListingDetails({ id, initialData }) {
               {/* Share and Report */}
               {shareAndReport}
             </div>
+            <div className="align-left">
+        <StaticMap coords={listing.location.coordinates}/>
+      </div>
           </div>
         </div>
       </div>
@@ -540,6 +547,8 @@ export default function ListingDetails({ id, initialData }) {
           </div>
         </div>
       )}
+      
+     
     </div>
   );
 }
