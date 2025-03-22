@@ -30,6 +30,8 @@ function ChatContent({ roomId }) {
   const [conversations, setConversations] = useState([]);
   // Add search state
   const [searchQuery, setSearchQuery] = useState('');
+  // Add loading state for messages
+  const [isLoadingMessages, setIsLoadingMessages] = useState(true);
   
   // Add a messages ref to track latest messages
   const messagesRef = useRef([]);
@@ -39,6 +41,7 @@ function ChatContent({ roomId }) {
   useEffect(() => {
     if (user && roomId) {
       const fetchMessages = async () => {
+        setIsLoadingMessages(true);
         try {
           const response = await fetch(`/api/messages?chatId=${roomId}`);
           if (!response.ok) throw new Error('Failed to fetch messages');
@@ -48,6 +51,8 @@ function ChatContent({ roomId }) {
         } catch (error) {
           console.error('Error fetching messages:', error);
           setMessages([]);
+        } finally {
+          setIsLoadingMessages(false);
         }
       };
       
@@ -217,25 +222,35 @@ function ChatContent({ roomId }) {
                     <div
                       key={chat.roomId}
                       className={`group p-4 hover:bg-gray-700/30 cursor-pointer flex items-center space-x-4 transition-all ${
-                        chat.roomId === roomId ? 'bg-gray-700/50 border-l-4 border-indigo-500' : ''
+                        chat.roomId === roomId ? 'bg-indigo-600/20 border-l-4 border-indigo-500 shadow-lg' : ''
                       }`}
                       onClick={() => {
                         window.location.href = `/chat?roomId=${chat.roomId}`;
                       }}
                     >
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500/10 to-purple-500/10 flex items-center justify-center text-2xl">
+                      <div className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl ${
+                        chat.roomId === roomId 
+                          ? 'bg-gradient-to-br from-indigo-500/30 to-purple-500/30 ring-2 ring-indigo-400'
+                          : 'bg-gradient-to-br from-indigo-500/10 to-purple-500/10'
+                      }`}>
                         👤
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex justify-between items-center">
-                          <h3 className="font-semibold text-gray-200 group-hover:text-indigo-400 transition-colors">
+                          <h3 className={`font-semibold transition-colors ${
+                            chat.roomId === roomId 
+                              ? 'text-indigo-300' 
+                              : 'text-gray-200 group-hover:text-indigo-400'
+                          }`}>
                             {otherUser.username}
                           </h3>
                           <span className="text-xs text-gray-500">
                             {new Date(chat.updatedAt).toLocaleDateString()}
                           </span>
                         </div>
-                        <p className="text-sm text-gray-400 truncate">
+                        <p className={`text-sm ${
+                          chat.roomId === roomId ? 'text-gray-300' : 'text-gray-400'
+                        } truncate`}>
                           {chat.listingId.title}
                         </p>
                       </div>
@@ -273,57 +288,71 @@ function ChatContent({ roomId }) {
 
             {/* Messages Area */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {messages.map((message, index) => {
-                const isCurrentUser = message.senderId._id === user._id;
-                const messageTime = new Date(message.timestamp).toLocaleTimeString([], {
-                  hour: '2-digit',
-                  minute: '2-digit'
-                });
+              {isLoadingMessages ? (
+                <div className="flex flex-col items-center justify-center h-full">
+                  <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-indigo-500 mb-3"></div>
+                  <p className="text-gray-400">Loading messages...</p>
+                </div>
+              ) : messages.length > 0 ? (
+                messages.map((message, index) => {
+                  const isCurrentUser = message.senderId._id === user._id;
+                  const messageTime = new Date(message.timestamp).toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  });
 
-                return (
-                  <div
-                    key={index}
-                    className={`flex items-start space-x-2 ${isCurrentUser ? 'justify-end' : 'justify-start'}`}
-                  >
-                    {!isCurrentUser && (
-                      <div className="flex-shrink-0">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500/10 to-purple-500/10 flex items-center justify-center text-gray-300">
-                          👤
-                        </div>
-                      </div>
-                    )}
-
-                    <div className={`flex flex-col ${isCurrentUser ? 'items-end' : 'items-start'}`}>
+                  return (
+                    <div
+                      key={index}
+                      className={`flex items-start space-x-2 ${isCurrentUser ? 'justify-end' : 'justify-start'}`}
+                    >
                       {!isCurrentUser && (
-                        <span className="text-xs text-gray-500 mb-1">
-                          {message.senderId.username}
-                        </span>
+                        <div className="flex-shrink-0">
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500/10 to-purple-500/10 flex items-center justify-center text-gray-300">
+                            👤
+                          </div>
+                        </div>
                       )}
-                      
-                      <div
-                        className={`max-w-[70%] rounded-lg p-3 ${
-                          isCurrentUser
-                            ? 'bg-indigo-500/80 backdrop-blur-sm text-white'
-                            : 'bg-gray-700/50 backdrop-blur-sm text-gray-200'
-                        }`}
-                      >
-                        <p className="break-words">{message.content}</p>
-                        <p className={`text-xs mt-1 ${isCurrentUser ? 'text-indigo-200' : 'text-gray-400'}`}>
-                          {messageTime}
-                        </p>
-                      </div>
-                    </div>
 
-                    {isCurrentUser && (
-                      <div className="flex-shrink-0">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-sm">
-                          Me
+                      <div className={`flex flex-col ${isCurrentUser ? 'items-end' : 'items-start'}`}>
+                        {!isCurrentUser && (
+                          <span className="text-xs text-gray-500 mb-1">
+                            {message.senderId.username}
+                          </span>
+                        )}
+                        
+                        <div
+                          className={`max-w-[70%] rounded-lg p-3 ${
+                            isCurrentUser
+                              ? 'bg-indigo-500/80 backdrop-blur-sm text-white'
+                              : 'bg-gray-700/50 backdrop-blur-sm text-gray-200'
+                          }`}
+                        >
+                          <p className="break-words">{message.content}</p>
+                          <p className={`text-xs mt-1 ${isCurrentUser ? 'text-indigo-200' : 'text-gray-400'}`}>
+                            {messageTime}
+                          </p>
                         </div>
                       </div>
-                    )}
+
+                      {isCurrentUser && (
+                        <div className="flex-shrink-0">
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-sm">
+                            Me
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="flex flex-col items-center justify-center h-full">
+                  <div className="text-gray-400 text-center">
+                    <p className="mb-2">No messages yet</p>
+                    <p className="text-sm">Start the conversation by sending a message below</p>
                   </div>
-                );
-              })}
+                </div>
+              )}
               <div ref={messagesEndRef} />
             </div>
 
