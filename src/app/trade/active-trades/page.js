@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../../../../context/AuthContext';
 import Image from 'next/image';
 import Link from 'next/link';
+import { FaExchangeAlt } from 'react-icons/fa';
 
 export default function ActiveTrades() {
     const [trades, setTrades] = useState([]);
@@ -60,9 +61,17 @@ export default function ActiveTrades() {
     }
 
     return (
-        <div className="container mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-6">Active Trades in Negotiation</h1>
+        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-indigo-900 py-12 px-4">
+            
+                <div className="text-center mb-8">
+                    <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent mb-4">
+                        Active Trades
+                    </h1>
+                    <p className="text-gray-400">Negotiate and Finalize your trades</p>
+                </div>
+            
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                
                 {trades.map((trade) => {
                     if (!trade.proposedItemId || !trade.targetItemId || !trade.proposerId || !trade.targetUserId) {
                         return null;
@@ -78,8 +87,10 @@ export default function ActiveTrades() {
                             key={trade._id}
                             className="block transition-transform hover:-translate-y-1"
                         >
-                            <div className="border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow bg-gray-50/50 backdrop-blur-sm">
-                                <div className="flex items-center justify-between mb-4">
+                            <div className="bg-gray-800/40 backdrop-blur-lg rounded-xl p-5 border border-gray-700/50 hover:border-purple-500/50 transition-all duration-300 shadow-lg shadow-black/30 hover:shadow-purple-900/20">
+
+
+                                <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-700/50">
                                     <div className="flex items-center">
                                         <Image
                                             src={otherUser?.profilePicture || '/default-avatar.avif'}
@@ -98,11 +109,17 @@ export default function ActiveTrades() {
                                     </span>
                                 </div>
                                 
+
+                                { /* My item */}
+
                                 <div className="flex justify-between mb-4">
-                                    <div className="flex-1">
+                                    <div className="flex-1 pr-2">
                                         <p className="font-medium">Your Item:</p>
-                                        <div className="mt-2">
+
+
+                                        <div className="bg-gray-900/70 rounded-lg p-2 shadow-inner">
                                             {userItem?.images?.[0] ? (
+                                                <div className='relative w-full h-24 mb-2'>
                                                 <Image
                                                     src={userItem.images[0]}
                                                     alt={userItem.title || 'Item image'}
@@ -113,6 +130,7 @@ export default function ActiveTrades() {
                                                         e.target.src = '/default-avatar.avif'
                                                     }}
                                                 />
+                                                </div>
                                             ) : (
                                                 <div className="w-[100px] h-[100px] bg-gray-200 rounded-md flex items-center justify-center">
                                                     <span className="text-gray-500">No image</span>
@@ -121,11 +139,17 @@ export default function ActiveTrades() {
                                             <p className="mt-1">{userItem?.title || 'Untitled Item'}</p>
                                         </div>
                                     </div>
+
+                                    { /* Trade symbol */}
+                                    <div className='flex items-center justify-center px-2'> 
+                                        <div className='w-8 h-8 rounded-full bg-purple-900/50 flex items-center justify-center'> <FaExchangeAlt className='text-white-400' /> </div>
+                                    </div>
                                     
-                                    <div className="flex-1 ml-4">
+                                    <div className="flex-1 pl-2">
                                         <p className="font-medium">Their Item:</p>
-                                        <div className="mt-2">
+                                        <div className="bg-gray-900/70 rounded-lg p-2 shadow-inner">
                                             {otherItem?.images?.[0] ? (
+                                                <div className='relative w-full h-24 mb-2'> 
                                                 <Image
                                                     src={otherItem.images[0]}
                                                     alt={otherItem.title || 'Item image'}
@@ -136,6 +160,7 @@ export default function ActiveTrades() {
                                                         e.target.src = '/default-avatar.avif'
                                                     }}
                                                 />
+                                                </div>
                                             ) : (
                                                 <div className="w-[100px] h-[100px] bg-gray-200 rounded-md flex items-center justify-center">
                                                     <span className="text-gray-500">No image</span>
