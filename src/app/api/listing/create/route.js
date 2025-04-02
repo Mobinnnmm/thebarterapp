@@ -4,6 +4,7 @@ import { connectToDB } from '../../../../../lib/mongodb';
 import User from '../../../../../models/User';
 import ItemListing from '../../../../../models/ItemListing';
 import jwt from 'jsonwebtoken';
+import cloudinary from '../../../cloudinary';  // Default import
 
 export async function POST(req) {
   try {
@@ -41,6 +42,21 @@ export async function POST(req) {
       location,
     } = body;
 
+    // Upload images to Cloudinary and store URLs
+    const imageUrls = [];
+    for (const image of images) {
+      try {
+        const uploadResponse = await cloudinary.v2.uploader.upload(image, {
+          folder: "barter_listings",
+          resource_type: "image",
+        });
+        imageUrls.push(uploadResponse.secure_url);
+      } catch (err) {
+        console.error("Image upload error:", err);
+        return new Response(JSON.stringify({ error: "Image upload failed" }), { status: 500 });
+      }
+    }
+
     // For debugging, console.log what the server received:
     console.log("Create Listing Body:", body);
     
@@ -49,7 +65,7 @@ export async function POST(req) {
       ownerID: decoded._id,
       title,
       description,
-      images,
+      images: imageUrls, // Store Cloudinary URLs
       category: selectedCategory, // Using selectedCategory
       tags: selectedTags, // Using selectedTags
       location

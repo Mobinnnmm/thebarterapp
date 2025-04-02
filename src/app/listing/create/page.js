@@ -7,6 +7,7 @@ import Link from "next/link";
 import { FiPlus, FiImage, FiX } from 'react-icons/fi';
 import Categories from "../components/Categories";
 import Map from "../../../components/Map";
+import axios from 'axios';
 
 export default function CreateListingPage() {
   const { user } = useAuth();
@@ -14,7 +15,8 @@ export default function CreateListingPage() {
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [images, setImages] = useState([""]);
+  const [images, setImages] = useState([]);
+  const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [categories, setCategories] = useState([]);
@@ -117,20 +119,34 @@ export default function CreateListingPage() {
     }
   };
 
-  const handleImageChange = (index, value) => {
-    const updated = [...images];
-    updated[index] = value;
-    setImages(updated);
-  };
+  // Handle file selection and upload
+  const handleImageUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
 
-  const addImageField = () => {
-    setImages([...images, ""]);
-  };
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', 'Barter'); // Replace with your Cloudinary upload preset
 
-  const removeImageField = (index) => {
-    if (images.length > 1) {
-      setImages(images.filter((_, i) => i !== index));
+    try {
+      setUploading(true);
+      const response = await axios.post(
+        'https://api.cloudinary.com/v1_1/ddpmfo9ey/image/upload',
+        formData
+      );
+
+      setImages([...images, response.data.secure_url]); // Store Cloudinary URL
+    } catch (error) {
+      console.error('Image upload failed:', error);
+      alert('Failed to upload image');
+    } finally {
+      setUploading(false);
     }
+  };
+
+  // Remove an image from the list
+  const removeImage = (index) => {
+    setImages(images.filter((_, idx) => idx !== index));
   };
 
   const handleLocationSelect = (coords) => {
@@ -230,59 +246,38 @@ export default function CreateListingPage() {
         </div>
       )}
     </div>
-              {/* <select
-              id="selectCategory"
-              className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all"
-              value={selected}
-              onChange={(e) => setCategories(e.target.value)}
-              //className="border rounded-md p-2 focus:ring-2 focus:ring-blue-500"
+    
+    </div>
+
+
+        <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Images
+        </label>
+        <div className="space-y-3">
+          {images.map((img, idx) => (
+            <div key={idx} className="flex gap-2 items-center">
+              <img src={img} alt={`Uploaded ${idx}`} className="w-16 h-16 rounded-lg" />
+              <button
+                type="button"
+                onClick={() => removeImage(idx)}
+                className="p-2 text-red-500 hover:bg-red-100 rounded-lg transition-colors"
               >
-              <option className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" value="">No Data</option>
-              {options.map((opt) => (
-              <option className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" key={opt.id} value={opt.id}>{opt.name}</option>
-            ))}
-          </select> */}
-          {/* {selected && <p className="text-sm mt-2">You selected: {selected}</p>} */}
-        </div>
-
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Images
-              </label>
-              <div className="space-y-3">
-                {images.map((img, idx) => (
-                  <div key={idx} className="flex gap-2">
-                    <div className="flex-1 relative">
-                      <FiImage className="absolute left-3 top-3 text-gray-400" />
-                      <input
-                        type="text"
-                        className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all"
-                        placeholder="Enter image URL"
-                        value={img}
-                        onChange={(e) => handleImageChange(idx, e.target.value)}
-                      />
-                    </div>
-                    {images.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeImageField(idx)}
-                        className="p-3 text-red-500 hover:bg-red-100 rounded-lg transition-colors"
-                      >
-                        <FiX size={20} />
-                      </button>
-                    )}
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  onClick={addImageField}
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                >
-                  <FiPlus /> Add another image
-                </button>
-              </div>
+                <FiX size={20} />
+              </button>
             </div>
+          ))}
+          <div className="flex items-center gap-2">
+            <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" id="imageUpload" />
+            <label
+              htmlFor="imageUpload"
+              className="cursor-pointer flex items-center gap-2 px-4 py-2 text-sm text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            >
+              <FiPlus /> {uploading ? 'Uploading...' : 'Upload Image'}
+            </label>
+          </div>
+        </div>
+      </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
