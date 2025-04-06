@@ -6,7 +6,7 @@ import { useAuth } from "../../../../context/AuthContext";
 import Link from "next/link";
 
 export default function RegisterPage() {
-  const { register } = useAuth();
+  const { saveUserInfoForVerification} = useAuth();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -18,12 +18,20 @@ export default function RegisterPage() {
     e.preventDefault();
     setMessage("");
     setIsLoading(true);
+    
     try {
-      await register(username, email, password);
-      router.push("/profile/setup");
+      // Validate inputs
+      if (!username || !email || !password) {
+        throw new Error("All fields are required");
+      }
+      
+      // Store registration data in context
+      saveUserInfoForVerification(username, email, password);
+      
+      // Redirect to email verification page
+      router.push("/auth/email-verification");
     } catch (err) {
       setMessage(err.message || "Registration failed");
-    } finally {
       setIsLoading(false);
     }
   };

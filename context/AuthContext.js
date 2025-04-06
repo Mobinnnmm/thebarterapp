@@ -13,6 +13,8 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   // State to hold the currently authenticated user
   const [user, setUser] = useState(null);
+  // New state to hold temporary registration data
+  const [tempUserInfo, setTempUserInfo] = useState(null);
 
   // On component mount, check localStorage for existing user session
   useEffect(() => {
@@ -37,6 +39,23 @@ export function AuthProvider({ children }) {
       }
     }
   }, []);
+
+  /**
+   * Store pending registration data
+   * @param {string} username - User's username
+   * @param {string} email - User's email
+   * @param {string} password - User's password
+   */
+  function saveUserInfoForVerification(username, email, password) {
+    setTempUserInfo({ username, email, password });
+  }
+
+  /**
+   * Clear pending registration data
+   */
+  function clearTempUserInfo() {
+    setTempUserInfo(null);
+  }
 
   /**
    * Register a new user
@@ -121,6 +140,9 @@ export function AuthProvider({ children }) {
   // Create context value object with authentication methods
   const value = {
     user,
+    tempUserInfo,
+    saveUserInfoForVerification,
+    clearTempUserInfo,
     register,
     login,
     logout,

@@ -28,29 +28,20 @@ import {
     <Html>
       <Head />
       <Body style={main}>
-        <Preview>Your login code for Linear</Preview>
+        <Preview>Your verification code for Barter</Preview>
         <Container style={container}>
           <Img
-            src={`${baseUrl}/static/linear-logo.png`}
+            src="https://png.pngtree.com/png-clipart/20210129/ourmid/pngtree-default-male-avatar-png-image_2811083.jpg"
             width="42"
             height="42"
-            alt="Linear"
+            alt="Barter"
             style={logo}
           />
-          <Heading style={heading}>Your login code for Linear</Heading>
-          <Section style={buttonContainer}>
-            <Button style={button} href="https://linear.app">
-              Login to Linear
-            </Button>
-          </Section>
-          <Text style={paragraph}>
-            This link and code will only be valid for the next 5 minutes. If the
-            link does not work, you can use the login verification code directly:
-          </Text>
+          <Heading style={heading}>Your verification code for Barter</Heading>
           <code style={code}>{validationCode}</code>
           <Hr style={hr} />
-          <Link href="https://linear.app" style={reportLink}>
-            Linear
+          <Link href="https://thebarterapp.vercel.app/" style={reportLink}>
+            Barter
           </Link>
         </Container>
       </Body>

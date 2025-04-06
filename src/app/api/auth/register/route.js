@@ -40,6 +40,7 @@ export async function POST(request) {
       username,
       email,
       password: hashedPassword,
+      isVerified: true,
     });
     await newUser.save();
 

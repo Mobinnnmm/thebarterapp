@@ -16,20 +16,20 @@ import {
   
 
   
-  export default function AcceptEmail() {
+  export default function ReceiveTradeOfferEmail() {
     return (
       <Html>
         <Head />
-        <Preview>Your Trade Offer has been Accepted!</Preview>
+        <Preview>You have received Trade Offer!</Preview>
         <Tailwind>
           <Body className="bg-white font-sans">
             <Container className="mx-auto w-full max-w-[600px] p-0">
               <Section className="p-8 text-center">
                 <Text className="mx-0 mb-8 mt-4 p-0 text-center text-2xl font-normal">
-                  <span className="font-bold tracking-tighter">Trade Offer Accepted</span>
+                  <span className="font-bold tracking-tighter">Trade Offer</span>
                 </Text>
                 <Text className="text-sm font-normal uppercase tracking-wider">
-                   Your trade proposal with the username for the following items has been accepted. TODO
+                   You have received a trade proposal from the username for the your following item. TODO
                 </Text>
                 <Heading className="my-4 text-4xl font-medium leading-tight">
                   TODO:
