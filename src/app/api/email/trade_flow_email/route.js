@@ -1,38 +1,37 @@
-// this route sends the trade related emails to the users
-import AcceptEmail from '../../../../emails/accept';
+import TradeFlowEmail from '../../../../../emails/trade_flow';
+
 import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-export async function POST() {
-  try {
-    const { data, error } = await resend.emails.send({
-      from: 'Acme <onboarding@resend.dev>',
-      to: ['labdulmobin@gmail.com'], // Static email for testing
-      subject: 'New Trade Offer Received!',
-      react: AcceptEmail({
-        year: 2024,
-        minutesSpentOnDocs: 1234,
-        uploadedDocuments: 25,
-        sharedLinks: 50,
-        receivedViews: 500,
-        topDocumentName: 'Q4 Financial Report',
-        topDocumentViews: 150,
-        mostActiveMonth: 'September',
-        mostActiveMonthViews: 200,
-        sharerPercentile: 95,
-        viewingLocations: ['United States', 'United Kingdom', 'Germany', 'Japan'],
-      }),
-    });
+export async function POST(request) {
+    try {
+        // parse the request body
+        const { email } = await request.json();
 
-    if (error) {
-      return Response.json({ error }, { status: 500 });
+        if (!email) {
+            return Response.json({
+                error: "Proposee's email is needed"
+            }, {status: 400} );
+        }
+
+        // send the email to the proposer
+        const data = await resend.emails.send({
+            from: 'Barter <onboarding@resend.dev>',
+            to: email,
+            subject: 'Your have received a trade proposal for one of your items',
+            react: TradeFlowEmail()
+        });
+
+        return Response.json({
+            success: true,
+            message: " Trade offer received email sent successfully ",
+            id: data.id
+        });
+    } catch (error) {
+        console.error('Email sending error:', error);
+        return Response.json({
+            error: error.message || "Failed to send verification email"
+        }, {status: 500 });
     }
-
-    return Response.json(data);
-  } catch (error) {
-    return Response.json({ error }, { status: 500 });
-  }
 }
-
-// NOTE: This is not a working backend for now. It's just here to avoid deployment failure.
