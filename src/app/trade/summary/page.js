@@ -13,6 +13,7 @@ function TradeSummaryForm() {
   const searchParams = useSearchParams();
   const { user } = useAuth();
   const [selectedItem, setSelectedItem] = useState(null);
+  const [tradeData, setTradeData] = useState(null);
   const [targetItem, setTargetItem] = useState(null);
   const [targetUserEmail, setTargetUserEmail] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -62,6 +63,7 @@ function TradeSummaryForm() {
         setSelectedItem(selectedData);
         setTargetItem(targetData);
         setTargetUserEmail(targetUserData.email);
+
       } catch (error) {
         console.error('Error fetching data:', error);
         setError(error.message);
@@ -72,6 +74,11 @@ function TradeSummaryForm() {
 
     fetchItems();
   }, [user, selectedItemId, targetItemId, targetUserId, router]);
+
+
+  const handleTradeData = async() => {
+    console.log("DEBUG: Trade data", tradeData);
+  }
 
   const handleProposeTrade = async () => {
     try {
@@ -88,6 +95,8 @@ function TradeSummaryForm() {
       if (!user?._id || !targetUserId || !selectedItemId || !targetItemId) {
         throw new Error('Missing required fields for trade');
       }
+
+
       
       const response = await fetch('/api/trade/create', {
         method: 'POST',
@@ -99,8 +108,34 @@ function TradeSummaryForm() {
 
       const data = await response.json();
 
+      setTradeData(data);
+      const tradeID = data.trade._id;
+
+      
+
       if (!response.ok) {
         throw new Error(data.error || 'Failed to create trade');
+      }
+
+      console.log("DEBUG: selected item", selectedItem);
+      console.log("DEBUG: target item",targetItem)
+      // Send the email to the proposee
+      const sendEmail = await fetch('/api/email/receive_trade_proposal', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: targetUserEmail,
+          item1: selectedItem,
+          item2: targetItem,
+          proposer: user?.username,
+          tradeID: tradeID
+        }),
+      });
+
+      if (!sendEmail.ok) {
+        console.error('failed to send the received offer email')
       }
 
       // Create notification for the target user
@@ -119,6 +154,7 @@ function TradeSummaryForm() {
       if (!notificationResponse.ok) {
         console.error('Failed to create notification');
       }
+
       
       alert("Trade offer sent");
       router.push(`/dashboard`);
@@ -159,7 +195,7 @@ function TradeSummaryForm() {
         <h1 className="text-3xl font-bold text-white text-center mb-8">
           Trade Summary
         </h1>
-
+        <button onClick={handleTradeData}>show trade logs</button>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
           {/* Your Item */}
           <div className="bg-gray-800/30 backdrop-blur-lg rounded-xl p-6">
