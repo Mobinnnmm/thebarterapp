@@ -58,12 +58,21 @@ function ChatContent({ roomId }) {
       
       fetchMessages();
 
-      console.log("Attempting to connect to socket server at:", process.env.NEXT_PUBLIC_SOCKET_SERVER_URL || 'http://localhost:3000');
+      // Log environment information
+      console.log("Environment:", {
+        NEXT_PUBLIC_SOCKET_SERVER_URL: process.env.NEXT_PUBLIC_SOCKET_SERVER_URL,
+        isProduction: process.env.NODE_ENV === 'production',
+        currentOrigin: typeof window !== 'undefined' ? window.location.origin : 'unknown'
+      });
       
-      const socket = io(process.env.NEXT_PUBLIC_SOCKET_SERVER_URL || 'http://localhost:3000', {
+      // Use a more robust connection approach
+      const serverUrl = process.env.NEXT_PUBLIC_SOCKET_SERVER_URL || 'http://localhost:3000';
+      console.log("Attempting to connect to socket server at:", serverUrl);
+      
+      const socket = io(serverUrl, {
         path: '/api/socketio',
         query: { userId: user._id, roomId },
-        transports: ['websocket', 'polling'], 
+        transports: ['websocket', 'polling'],
         withCredentials: false,
         autoConnect: true,
         reconnection: true,
@@ -78,7 +87,19 @@ function ChatContent({ roomId }) {
 
       socket.on('connect_error', (error) => {
         console.error('Socket connection error:', error.message);
-        console.error('Socket connection error details:', error);
+        console.error('Socket connection error details:', {
+          error,
+          transport: socket.io.engine.transport.name,
+          url: socket.io.uri,
+          opts: socket.io.opts,
+          readyState: socket.io.readyState
+        });
+        
+        // Attempt to reconnect with different transport if websocket fails
+        if (socket.io.engine.transport.name === 'websocket') {
+          console.log('Websocket transport failed, falling back to polling');
+          socket.io.engine.transport.close();
+        }
       });
 
       socket.on('receiveMessage', (message) => {

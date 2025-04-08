@@ -10,7 +10,7 @@ const ioHandler = (req, res) => {
     const io = new Server(httpServer, {
       path: '/api/socketio',
       cors: {
-        origin: "*", // Allow all origins in development
+        origin: "*",
         methods: ["GET", "POST"]
       },
       addTrailingSlash: false
