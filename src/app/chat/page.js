@@ -57,12 +57,11 @@ function ChatContent({ roomId }) {
       const socketServerUrl = process.env.NEXT_PUBLIC_SOCKET_SERVER_URL;
       console.log('Connecting to socket server at:', socketServerUrl);
       
-      // Create socket connection with correct configuration
+      // Create socket connection WITHOUT the path option
       const socket = io(socketServerUrl, {
-        path: '/api/socketio',
         query: { userId: user._id, roomId },
-        transports: ['websocket', 'polling'], // Try websocket first
-        withCredentials: true,
+        transports: ['polling', 'websocket'], // Try polling first
+        withCredentials: false,
         autoConnect: true,
         reconnection: true,
         reconnectionAttempts: 5,
