@@ -65,8 +65,12 @@ function ChatContent({ roomId }) {
         currentOrigin: typeof window !== 'undefined' ? window.location.origin : 'unknown'
       });
       
-      // Use a more robust connection approach
-      const serverUrl = process.env.NEXT_PUBLIC_SOCKET_SERVER_URL || 'http://localhost:3000';
+      // Use a more robust connection approach with better fallback
+      const serverUrl = process.env.NEXT_PUBLIC_SOCKET_SERVER_URL || 
+        (typeof window !== 'undefined' && window.location.hostname === 'localhost' 
+          ? 'http://localhost:3000' 
+          : 'https://barter-socket-server.onrender.com');
+
       console.log("Attempting to connect to socket server at:", serverUrl);
       
       const socket = io(serverUrl, {
