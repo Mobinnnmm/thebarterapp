@@ -1,39 +1,22 @@
 import { NextResponse } from 'next/server';
-import { createServer } from 'http';
-import { Server } from 'socket.io';
 
-const ioHandler = (req, res) => {
-  if (!res.socket.server.io) {
-    const httpServer = createServer();
-    const io = new Server(httpServer, {
-      path: '/api/socketio',
-      cors: {
-        origin: "http://localhost:3000",
-        methods: ["GET", "POST"]
+export const GET = (req) => {
+  // Redirect to the actual Socket.IO server
+  const socketServerUrl = process.env.NEXT_PUBLIC_SOCKET_SERVER_URL;
+  
+  // Return a response indicating that connections should go to the external server
+  return new NextResponse(
+    JSON.stringify({ 
+      message: 'Socket.IO server is running at a separate URL',
+      socketServerUrl 
+    }),
+    { 
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
       }
-    });
-
-    // Socket.IO event handlers
-    io.on('connection', (socket) => {
-      const { userId, roomId } = socket.handshake.query;
-      console.log("New client connected", userId, roomId);
-
-      socket.join(roomId);
-
-      socket.on('sendMessage', async (message) => {
-        io.to(roomId).emit('receiveMessage', message);
-      });
-
-      socket.on('disconnect', () => {
-        console.log('Client disconnected');
-      });
-    });
-
-    res.socket.server.io = io;
-  }
-
-  res.end();
+    }
+  );
 };
 
-export const GET = ioHandler;
-export const POST = ioHandler; 
+export const POST = GET; 
