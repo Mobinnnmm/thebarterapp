@@ -53,15 +53,16 @@ function ChatContent({ roomId }) {
       
       fetchMessages();
 
-      // Update socket connection to use the correct server URL
+      // Get the socket server URL from environment variables
       const socketServerUrl = process.env.NEXT_PUBLIC_SOCKET_SERVER_URL;
       console.log('Connecting to socket server at:', socketServerUrl);
       
+      // Create socket connection with correct configuration
       const socket = io(socketServerUrl, {
         path: '/api/socketio',
         query: { userId: user._id, roomId },
-        transports: ['polling', 'websocket'],
-        withCredentials: false,
+        transports: ['websocket', 'polling'], // Try websocket first
+        withCredentials: true,
         autoConnect: true,
         reconnection: true,
         reconnectionAttempts: 5,
