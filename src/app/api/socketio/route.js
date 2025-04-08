@@ -1,36 +1,45 @@
 import { NextResponse } from 'next/server';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
 
-export const GET = (req) => {
-  // Get the Socket.IO server URL from environment variables
-  const socketServerUrl = process.env.NEXT_PUBLIC_SOCKET_SERVER_URL;
-  
-  // Return a response with CORS headers to allow the connection
-  return new NextResponse(
-    JSON.stringify({ 
-      message: 'Socket.IO server is running at a separate URL',
-      socketServerUrl 
-    }),
-    { 
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization'
-      }
-    }
-  );
+const ioHandler = (req, res) => {
+  if (!res.socket.server.io) {
+    console.log("Initializing Socket.IO server in Next.js API route");
+    
+    const httpServer = createServer();
+    const io = new Server(httpServer, {
+      path: '/api/socketio',
+      cors: {
+        origin: "*", // Allow all origins in development
+        methods: ["GET", "POST"]
+      },
+      addTrailingSlash: false
+    });
+
+    // Socket.IO event handlers
+    io.on('connection', (socket) => {
+      const { userId, roomId } = socket.handshake.query;
+      console.log("New client connected", userId, roomId);
+
+      socket.join(roomId);
+
+      socket.on('sendMessage', async (message) => {
+        console.log("Message received:", message);
+        io.to(roomId).emit('receiveMessage', message);
+      });
+
+      socket.on('disconnect', () => {
+        console.log('Client disconnected');
+      });
+    });
+
+    res.socket.server.io = io;
+  } else {
+    console.log("Socket.IO server already running");
+  }
+
+  res.end();
 };
 
-export const POST = GET;
-
-export const OPTIONS = (req) => {
-  return new NextResponse(null, {
-    status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization'
-    }
-  });
-}; 
+export const GET = ioHandler;
+export const POST = ioHandler; 
