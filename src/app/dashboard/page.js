@@ -276,9 +276,6 @@ export default function DashboardPage() {
                           {formatDistanceToNow(new Date(notification.dateSent), { addSuffix: true })}
                         </p>
                       </div>
-                      {!notification.isRead && (
-                        <div className="w-2 h-2 rounded-full bg-blue-500 mt-2"></div>
-                      )}
                     </div>
                   ))
                 )}
@@ -395,11 +392,11 @@ export default function DashboardPage() {
                           <span className="text-4xl">📦</span>
                         </div>
                       )}
-                      <div className="absolute top-2 right-2">
+                      {/* <div className="absolute top-2 right-2">
                         <span className="px-3 py-1 bg-purple-500/80 backdrop-blur-sm text-white text-sm rounded-full">
                           {listing.category || 'Other'}
                         </span>
-                      </div>
+                      </div> */}
                     </div>
 
                     <div className="p-4">
@@ -462,13 +459,6 @@ export default function DashboardPage() {
                     ) : (
                       <div className="w-full h-full bg-gradient-to-br from-gray-700 to-gray-600 flex items-center justify-center">
                         <span className="text-4xl">📦</span>
-                      </div>
-                    )}
-                    {item.category && (
-                      <div className="absolute top-2 left-2">
-                        <span className="px-3 py-1 bg-purple-500/80 backdrop-blur-sm text-white text-sm rounded-full">
-                          {item.category}
-                        </span>
                       </div>
                     )}
                   </div>

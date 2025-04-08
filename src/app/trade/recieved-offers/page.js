@@ -109,6 +109,8 @@ export default function ReceivedOffers() {
                                             <Image
                                                 src={trade.proposedItemId.images[0]}
                                                 alt={trade.proposedItemId.title}
+                                                width={100}
+                                                height={100}
                                                 className="rounded-md object-cover"
                                                 onError={(e) => {
                                                     e.target.src = '/default-avatar.avif'

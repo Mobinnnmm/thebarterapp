@@ -41,7 +41,9 @@ export default function InitialOfferPage({ params }) {
                 const data = await response.json();
                 
                 if (data.success) {
+                    console.log('Trade data:', data.trade);
                     setTrade(data.trade);
+
                 } else {
                     setError(data.error);
                 }
@@ -124,15 +126,32 @@ export default function InitialOfferPage({ params }) {
             
             // Send email notification
             try {
-                const emailResponse = await fetch('/api/email', {
+                
+                const proposerEmail = trade.proposerId.email;
+                
+                
+                if (!proposerEmail) {
+                    console.error('Proposer email is missing from trade data');
+                    throw new Error('Proposer email is missing');
+                }
+                
+                const sendEmail = await fetch('/api/email/accept_trade_email', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                    }
+                    },
+                    body: JSON.stringify({
+                        proposerEmail: proposerEmail,
+                        item1: trade.proposedItemId.title,
+                        item2: trade.targetItemId.title,
+                        tradeID: tradeId,
+                        currentUser: user.username
+                    })
                 });
                 
-                if (!emailResponse.ok) {
-                    console.error('Failed to send email notification');
+                if (!sendEmail.ok) {
+                    const errorData = await sendEmail.json();
+                    console.error('Failed to send email notification:', errorData);
                 } else {
                     console.log('Email notification sent successfully');
                 }

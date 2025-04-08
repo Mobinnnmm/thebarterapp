@@ -159,6 +159,32 @@ export default function NegotiatePage() {
                 const data = await response.json();
 
                 if (data.success) {
+                    // Send completion emails
+                    try {
+                        const emailResponse = await fetch('/api/email/Completion_Email', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                email1: user.email,
+                                email2: otherUser.email,
+                                proposedItem: isProposer ? userItem : otherItem,
+                                targetItem: isProposer ? otherItem : userItem,
+                                proposer: isProposer ? user.username : otherUser.username,
+                                recipient: isProposer ? otherUser.username : user.username,
+                                tradeID: tradeId,
+                                meetingDetails: trade?.currentProposal?.meetingDetails || null
+                            }),
+                        });
+
+                        if (!emailResponse.ok) {
+                            console.error('Failed to send completion emails');
+                        }
+                    } catch (emailError) {
+                        console.error('Error sending completion emails:', emailError);
+                    }
+
                     router.push(`/trade/completion/${tradeId}`);
                 } else {
                     alert(data.error || 'Failed to complete trade');

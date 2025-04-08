@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, use } from "react";
 
-export default function PublicProfile({ params }) {
+export default function PublicProfile(props) {
+  const params = use(props.params);
   const [userData, setUserData] = useState(null);
   const [errorMsg, setErrorMsg] = useState("");
 

@@ -3,7 +3,8 @@
 import { connectToDB } from '../../../../../../lib/mongodb';
 import Review from '../../../../../../models/Review';
 
-export async function GET(req, { params }) {
+export async function GET(req, props) {
+  const params = await props.params;
   try {
     await connectToDB();
 

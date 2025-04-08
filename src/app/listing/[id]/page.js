@@ -29,7 +29,8 @@ async function getListingData(id) {
 }
 
 // Use searchParams and params as separate props
-export default async function Page({ params }) {
+export default async function Page(props) {
+  const params = await props.params;
   // Await the params before accessing id
   const id = await params?.id;
 
@@ -44,7 +45,7 @@ export default async function Page({ params }) {
   }
 
   const listingData = await getListingData(id);
-  
+
   if (!listingData) {
     return (
       <div className="min-h-screen flex items-center justify-center">

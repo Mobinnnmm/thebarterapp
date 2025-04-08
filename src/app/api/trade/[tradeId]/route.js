@@ -19,8 +19,8 @@ export async function GET(request, props) {
     const trade = await Trade.findById(params.tradeId)
       .populate('proposedItemId')
       .populate('targetItemId')
-      .populate('proposerId', 'username profilePicture')
-      .populate('targetUserId', 'username profilePicture')
+      .populate('proposerId', 'username profilePicture email')
+      .populate('targetUserId', 'username profilePicture email')
       .populate('currentProposal.proposedBy', 'username profilePicture')
       .populate({
         path: 'negotiationHistory',
@@ -70,8 +70,8 @@ export async function PUT(request, props) {
     )
     .populate('proposedItemId')
     .populate('targetItemId')
-    .populate('proposerId', 'username profilePicture')
-    .populate('targetUserId', 'username profilePicture');
+    .populate('proposerId', 'username profilePicture email')
+    .populate('targetUserId', 'username profilePicture email');
 
     if (!trade) {
       return NextResponse.json(

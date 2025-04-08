@@ -7,41 +7,68 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request) {
     try {
-        // parse the request body
-        const { email1, email2 } = await request.json();
+        // Parse the request body
+        const { 
+            email1, 
+            email2, 
+            proposedItem, 
+            targetItem, 
+            proposer, 
+            recipient, 
+            tradeID, 
+            meetingDetails 
+        } = await request.json();
 
         if (!email1 || !email2) {
             return Response.json({
-                error: "Both user's email is needed"
-            }, {status: 400} );
+                error: "Both users' emails are needed"
+            }, {status: 400});
         }
 
-        // send the email to the proposer
-        const e1 = await resend.emails.send({
+        if (!proposedItem || !targetItem) {
+            console.error("Either of the two items are empty or NULL");
+            return Response.json({
+                error: "Item information is required"
+            }, {status: 400});
+        }
+
+        const tradeInfo = {
+            proposedItem,
+            targetItem,
+            proposer,
+            recipient,
+            tradeID,
+            meetingDetails
+        };
+
+        // Debug the constructed tradeInfo
+        console.log('Trade completion info constructed:', JSON.stringify(tradeInfo));
+
+        // Send the email to the first user
+        const data1 = await resend.emails.send({
             from: 'Barter <onboarding@resend.dev>',
             to: email1,
-            subject: 'Your Trade Proposal has been accepted',
-            react: CompletedTradeEmail()
+            subject: 'Your Trade Has Been Completed!',
+            react: CompletedTradeEmail(tradeInfo)
         });
 
-
-        // send the email to the proposer
-        const e2 = await resend.emails.send({
+        // Send the email to the second user
+        const data2 = await resend.emails.send({
             from: 'Barter <onboarding@resend.dev>',
-            to: email1,
-            subject: 'Your Trade Proposal has been accepted',
-            react: CompletedTradeEmail()
+            to: email2,
+            subject: 'Your Trade Has Been Completed!',
+            react: CompletedTradeEmail(tradeInfo)
         });
 
         return Response.json({
             success: true,
-            message: "Completion email sent successfully ",
-            id: e1.id
+            message: "Completion emails sent successfully",
+            ids: [data1.id, data2.id]
         });
     } catch (error) {
         console.error('Email sending error:', error);
         return Response.json({
-            error: error.message || "Failed to send verification email"
-        }, {status: 500 });
+            error: error.message || "Failed to send completion emails"
+        }, {status: 500});
     }
 }
