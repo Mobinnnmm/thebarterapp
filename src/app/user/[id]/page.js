@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link"; 
 import { useAuth } from "../../../../context/AuthContext";
 import { useParams } from "next/navigation";
+import UserReview from "../../../components/UserReview";
 
 export default function UserProfilePage() {
   const { user } = useAuth();
@@ -22,7 +23,7 @@ export default function UserProfilePage() {
   const [rating, setRating] = useState(5);
   const [loggedInUserId, setLoggedInUserId] = useState(userId); 
 
-
+  // var total = 0;
   useEffect(() => {
     async function fetchUserData() {
       try {
@@ -59,6 +60,13 @@ export default function UserProfilePage() {
   }, [id]);
 
 
+// useEffect(() => {
+ 
+
+// }}, [userReviews])
+  
+
+
   const handleViewToggle = (view) => {
     setViewMode(view); // Toggle between 'listings' and 'reviews'
   };
@@ -84,7 +92,7 @@ export default function UserProfilePage() {
         body: JSON.stringify(newReview),
       });
 
-      if (!response.ok) throw new Error("Failed to submit review");
+      if (!response.ok) return alert("You cannot write more than one review for another user");
 
       const savedReview = await response.json();
       setUserReviews((prev) => [...prev, savedReview]); 
@@ -113,11 +121,13 @@ export default function UserProfilePage() {
     );
   }
 
+ 
+
   return (
     <div className="min-h-screen bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto bg-gradient-to-r from-blue-500/10 to-blue-500/10">
         {/* User Profile Card */}
-        <div className="bg-gray-800 rounded-xl shadow-xl overflow-hidden mb-8">
+        <div className=" bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-xl shadow-xl overflow-hidden mb-8">
           <div className="p-8">
             <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
               {/* Profile Picture */}
@@ -167,9 +177,10 @@ export default function UserProfilePage() {
                   rows="4"
                   placeholder="Write your review here..."
                   value={reviewText}
+                  maxLength={500}
                   onChange={(e) => setReviewText(e.target.value)}
                 />
-                <div className="flex items-center space-x-4">
+                {/* <div className="flex items-center space-x-4">
                   <label className="text-gray-300">Rating:</label>
                   <select
                     className="p-2 bg-gray-900 border border-gray-700 text-white rounded-md"
@@ -180,6 +191,20 @@ export default function UserProfilePage() {
                       <option key={num} value={num}>{num}</option>
                     ))}
                   </select>
+                </div> */}
+                <div className="flex items-center space-x-4">
+                  <label className="text-gray-300">Rating:</label>
+                  <div className="flex space-x-1">
+                    {[1, 2, 3, 4, 5].map((num) => (
+                      <div
+                        key={num}
+                        className={`cursor-pointer text-2xl ${rating >= num ? 'text-yellow-500' : 'text-gray-400'}`}
+                        onClick={() => setRating(num)} // Update rating on click
+                      >
+                        ★
+                      </div>
+                    ))}
+                  </div>
                 </div>
                 <button
                   type="submit"
@@ -195,7 +220,7 @@ export default function UserProfilePage() {
         </div>
 
         {/* Buttons to Toggle View */}
-        <div className="pb-8">
+        <div className="pb-8 ">
           <button
             className="m-5 text-gray-200 hover:text-white p-2 rounded-lg bg-green-600/50 hover:bg-gray-700 transition-all"
             onClick={() => handleViewToggle("listings")}
@@ -212,7 +237,7 @@ export default function UserProfilePage() {
 
         {/* Conditionally Render Listings or Reviews */}
         {viewMode === "listings" && (
-          <div className="space-y-6">
+          <div className="space-y-6 m-5">
             <h2 className="text-2xl font-bold text-white mb-6">Listed Items</h2>
             {userListings.length === 0 ? (
               <div className="text-center py-12 bg-gray-800 rounded-xl">
@@ -228,7 +253,7 @@ export default function UserProfilePage() {
                       href={`/listing/${itemId}`}
                       className="block group"
                     >
-                      <div className="bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:transform hover:scale-[1.02] transition-all duration-200">
+                      <div className="m-5 bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:transform hover:scale-[1.02] transition-all duration-200">
                         <div className="aspect-w-16 aspect-h-9">
                           {item.images && item.images[0] ? (
                             <img
@@ -267,23 +292,58 @@ export default function UserProfilePage() {
             )}
           </div>
         )}
+        
+        {viewMode === "reviews" ? (
+          userReviews.length === 0 ? (
+            <div className="text-center py-12 bg-gray-800 rounded-xl">
+              <p className="text-gray-400">This user has no reviews.</p>
+            </div>
+          ) : 
+          (
+            <div>
+                <h2 className="m-5 pd-1 text-2xl font-bold text-white mb-6">User Reviews</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
+              {userReviews.map((review) => (
+                <div key={review._id} className="m-5 grid grid-cols-2 bg-gray-800 p-4 rounded-xl shadow-lg">
+                  
 
-        {userReviews.length === 0 ? (
-          <div className="text-center py-12 bg-gray-800 rounded-xl">
-            <p className="text-gray-400">This user has no reviews.</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {userReviews.map((review) => (
-              <div key={review._id} className="bg-gray-800 p-4 rounded-xl shadow-lg">
-                <p className="text-white font-semibold">{review.reviewerId?.username}</p>
-                <p className="text-gray-400">{review.notes}</p>
-                <p className="text-yellow-500">{review.rating} / 5 ⭐</p>
+
+                  <div className="w-16 h-16 mb-2 rounded-full overflow-hidden bg-purple-500 flex-shrink-0">
+                  {/* {true ? (
+                  <img
+                    src={reviewOwner.profilePicture}
+                    alt={reviewOwner.username}
+                    className="w-full h-full object-cover"
+                  />
+                ) : ( */}
+                  <div className="w-full h-full flex items-center justify-center text-4xl">
+                    👤
+                  </div>
+                {/* )} */}
               </div>
-            ))}
-          </div>
-        )}
+                  <p className="text-gray-400">{review.notes}</p>
+                  <p className="text-white font-semibold">{review.reviewerId?.username}</p>
+                  <p className="flex items-center space-x-1">
+                  {[1, 2, 3, 4, 5].map((num) => (
+                    <span
+                      key={num}
+                      className={`text-2xl ${review.rating >= num ? 'text-yellow-500' : 'text-gray-400'}`}
+                    >
+                      ★
+                    </span>
+                  ))}
+                </p>
+                </div>
+              ))}
+            </div>
+            </div>
+          )
+        ) : 
+        (<div></div>) 
+        }
       </div>
+      {/* userReviews.forEach((e) =>{total += e.rating}) */}
+      {/* <p>hey{total /= userListings.length}</p> */}
     </div>
   );
 }
