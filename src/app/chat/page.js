@@ -64,8 +64,7 @@ function ChatContent({ roomId }) {
         isProduction: process.env.NODE_ENV === 'production',
         currentOrigin: typeof window !== 'undefined' ? window.location.origin : 'unknown'
       });
-      
-      // Use a more robust connection approach with better fallback
+      // stack overflow
       const serverUrl = process.env.NEXT_PUBLIC_SOCKET_SERVER_URL || 
         (typeof window !== 'undefined' && window.location.hostname === 'localhost' 
           ? 'http://localhost:3000' 
@@ -99,6 +98,7 @@ function ChatContent({ roomId }) {
           readyState: socket.io.readyState
         });
         
+        // stack overflow
         // Attempt to reconnect with different transport if websocket fails
         if (socket.io.engine.transport.name === 'websocket') {
           console.log('Websocket transport failed, falling back to polling');
@@ -108,14 +108,34 @@ function ChatContent({ roomId }) {
 
       socket.on('receiveMessage', (message) => {
         console.log('Received message:', message);
-        // Use the ref to check for duplicates
-        if (!messagesRef.current.some(m => m._id === message._id)) {
-          setMessages(prev => {
-            const newMessages = [...prev, message];
-            messagesRef.current = newMessages;  // Update ref
+        
+        setMessages(prev => {
+          // First, check if we already have this exact message by ID
+          if (prev.some(m => !m.isTemp && m._id === message._id)) {
+            console.log('Ignoring duplicate message with ID:', message._id);
+            return prev; // Already have this message, don't add it
+          }
+          
+          // Next, check if this is a server confirmation of our temporary message
+          const tempIndex = prev.findIndex(m => 
+            m.isTemp && message.tempId && m._id === message.tempId
+          );
+          
+          if (tempIndex >= 0) {
+            console.log('Replacing temp message with server message');
+            // Replace the temporary message with the server version
+            const newMessages = [...prev];
+            newMessages[tempIndex] = message;
+            messagesRef.current = newMessages;
             return newMessages;
-          });
-        }
+          }
+          
+          // It's a completely new message, add it
+          console.log('Adding new message from server');
+          const newMessages = [...prev, message];
+          messagesRef.current = newMessages;
+          return newMessages;
+        });
       });
 
       socket.on('messageError', (error) => {
@@ -183,36 +203,35 @@ function ChatContent({ roomId }) {
   const sendMessage = async (e) => {
     e.preventDefault();
     if (newMessage.trim() && socket && roomId) {
+      
+      const tempId = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      
       const messageData = {
         content: newMessage,
         senderId: user._id,
         chatId: roomId,
         timestamp: new Date(),
-        isRead: false
+        isRead: false,
+        tempId: tempId // Include tempId for tracking
       };
 
       try {
-        console.log('Attempting to send message:', messageData);
+        console.log('Sending message with tempId:', tempId);
         setNewMessage(''); // Clear input immediately
-        // Send directly through socket instead of REST API
-        socket.emit('sendMessage', messageData);
-        console.log('Message emitted to server');
         
-        // Add a temporary local message while waiting for server confirmation
+        // Create a temporary message for immediate display
         const tempMessage = {
-          _id: 'temp-' + Date.now(),
+          _id: tempId, // Use tempId as the _id for now
           content: messageData.content,
           senderId: { _id: user._id, username: user.username },
           chatId: roomId,
           timestamp: new Date(),
-          isRead: false
+          isRead: false,
+          isTemp: true 
         };
         
-        setMessages(prev => {
-          const newMessages = [...prev, tempMessage];
-          messagesRef.current = newMessages;
-          return newMessages;
-        });
+        // Send to server
+        socket.emit('sendMessage', messageData);
       } catch (error) {
         console.error('Error sending message:', error);
       }
@@ -249,7 +268,7 @@ function ChatContent({ roomId }) {
                     <div
                       key={chat.roomId}
                       className={`group p-4 hover:bg-gray-700/30 cursor-pointer flex items-center space-x-4 transition-all ${
-                        chat.roomId === roomId ? 'bg-indigo-600/20 border-l-4 border-indigo-500 shadow-lg' : ''
+                        chat.roomId === roomId ? 'bg-blue-900 border-l-4 border-indigo-500 shadow-lg' : ''
                       }`}
                       onClick={() => {
                         window.location.href = `/chat?roomId=${chat.roomId}`;
@@ -317,8 +336,8 @@ function ChatContent({ roomId }) {
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {isLoadingMessages ? (
                 <div className="flex flex-col items-center justify-center h-full">
-                  <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-indigo-500 mb-3"></div>
-                  <p className="text-gray-400">Loading messages...</p>
+                  {/* <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-indigo-500 mb-3"></div> */}
+                  <p className="text-gray-400">Please select a Chat...</p>
                 </div>
               ) : messages.length > 0 ? (
                 messages.map((message, index) => {
@@ -349,13 +368,13 @@ function ChatContent({ roomId }) {
                         )}
                         
                         <div
-                          className={`max-w-[70%] rounded-lg p-3 ${
+                          className={`max-w-[100%] rounded-lg p-3 ${
                             isCurrentUser
                               ? 'bg-indigo-500/80 backdrop-blur-sm text-white'
                               : 'bg-gray-700/50 backdrop-blur-sm text-gray-200'
                           }`}
                         >
-                          <p className="break-words">{message.content}</p>
+                          <p className="whitespace-normal break-words overflow-hidden">{message.content}</p>
                           <p className={`text-xs mt-1 ${isCurrentUser ? 'text-indigo-200' : 'text-gray-400'}`}>
                             {messageTime}
                           </p>
@@ -407,7 +426,7 @@ function ChatContent({ roomId }) {
         </div>
       </div>
     </div>
-  );
+  );  
 }
 
 // Loading component

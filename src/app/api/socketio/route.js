@@ -25,7 +25,9 @@ const ioHandler = (req, res) => {
 
       socket.on('sendMessage', async (message) => {
         console.log("Message received:", message);
-        io.to(roomId).emit('receiveMessage', message);
+        // Pass along the tempId if it exists
+        const { tempId } = message;
+        io.to(roomId).emit('receiveMessage', { ...message, tempId });
       });
 
       socket.on('disconnect', () => {
