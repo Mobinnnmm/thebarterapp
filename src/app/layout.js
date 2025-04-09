@@ -88,6 +88,16 @@ function NavBar() {
                 >
                   Dashboard
                 </Link>
+
+                {user.username == "group4" ? (
+                  <Link 
+                    href="/adminDashboard" 
+                    className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700/50 transition-all"
+                  >
+                    Admin
+                  </Link>
+                ) : null}
+
                 <Link 
                   href="/trade" 
                   className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700/50 transition-all"
