@@ -191,7 +191,7 @@ export default function AllListingsPage() {
                       checked={_id in selected}
                       onChange={() => toggleCategory(_id)}
                     />
-                    <label className="truncate block max-w-xs text-left">{name}</label>
+                    <label className="block max-w-xs text-left">{name}</label>
                   </div>
                   <button
                     className="text-gray-200 hover:text-white p-2 rounded-full bg-gray-600/50 hover:bg-gray-700 transition-all"
