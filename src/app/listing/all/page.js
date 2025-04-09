@@ -308,7 +308,7 @@ export default function AllListingsPage() {
                     {/* Category Badge */}
                     <div className="absolute top-2 right-2">
                       <span className="px-3 py-1 bg-purple-500/80 backdrop-blur-sm text-white text-sm rounded-full">
-                        {listing.category || 'Other'}
+                        {listing.tags[0] || 'Other'}
                       </span>
                     </div>
                   </div>
