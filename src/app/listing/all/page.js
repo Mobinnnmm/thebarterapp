@@ -47,15 +47,12 @@ export default function AllListingsPage() {
     fetchListings();
   }, []);
 
-
-
 //Change later
 // const CategoryTagSelector = () => {
   const [categories, setCategories] = useState([]);
   const [selected, setSelected] = useState({});
   const [expanded, setExpanded] = useState(new Set());
-  const [isCollapsed, setIsCollapsed] = useState(true);
-  const [isMapCollapsed, setIsMapCollapsed] = useState(false);
+  const [isMapCollapsed, setIsMapCollapsed] = useState(true);
   const [allSelected, setAllSelected] = useState(true); // New state for "Select All" toggle
 
   useEffect(() => {
@@ -168,8 +165,62 @@ export default function AllListingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+  <div className="grid grid-cols-12 gap-2">
+
+    {/* filters */}
+    <div className="col-span-3 mt-80">
+    <div className="mb-2 mt-15">
+            <button
+              className="text-gray-200 hover:text-white p-2 rounded-full bg-gray-600/50 hover:bg-gray-700 transition-all mr-2"
+              onClick={toggleSelectAll}
+            >
+              {allSelected ? 'Clear All Filters' : 'Select All Filters'}
+            </button>
+            
+          </div>
       
+        <div className="bg-gradient-to-br from-gray-800 via-gray-800 to-gray-800">
+          <div className="">
+            {categories.map(({ _id, name, tags }) => (
+              <div key={_id} className="p-2 px-3 border border-gray-700 rounded-md">
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center space-x-2 overflow-hidden">
+                    <input
+                      className="mr-1"
+                      type="checkbox"
+                      checked={_id in selected}
+                      onChange={() => toggleCategory(_id)}
+                    />
+                    <label className="truncate block max-w-xs text-left">{name}</label>
+                  </div>
+                  <button
+                    className="text-gray-200 hover:text-white p-2 rounded-full bg-gray-600/50 hover:bg-gray-700 transition-all"
+                    onClick={() => toggleExpand(_id)}
+                  >
+                    {expanded.has(_id) ? 'Hide Tags' : 'Show Tags'}
+                  </button>
+                </div>
+                {selected[_id] && expanded.has(_id) && (
+                  <div className="mt-2 p-2 text-left bg-gray-800 text-white border border-gray-600 rounded-md">
+                    {tags.map((tag) => (
+                      <div key={tag} className="mb-2">
+                        <input className="mr-3" type="checkbox" checked={selected[_id]?.has(tag) || false} onChange={() => toggleTag(_id, tag)} />
+                        <label>{tag}</label>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+         
+        </div>
+      
+      
+    </div>
+{/* end of filters */}
+
+    <div className="col-span-9 min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
       {/* Hero Section */}
       <div className="relative overflow-hidden bg-gray-800/50 backdrop-blur-lg py-16 mb-8">
       
@@ -195,70 +246,9 @@ export default function AllListingsPage() {
                 />
                 <span className="absolute right-3 top-3 text-gray-400">🔍</span>
               </div>
-              
-              {/* <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full md:w-auto px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white"
-              >
-                <option value="all">All Categories</option>
-                <option value="electronics">Electronics</option>
-                <option value="clothing">Clothing</option>
-                <option value="books">Books</option>
-                <option value="other">Other</option>
-              </select> */}
             </div>
-            {/* <Filter></Filter> */}
 
-
-            {/* change later */}
-
-      <div>
-      {!isCollapsed && (
-        <div>
-          <div className="mt-16 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-            {categories.map(({ _id, name, tags }) => (
-              <div key={_id} className="p-2 px-6 border border-gray-700 rounded-md">
-                <div className="flex justify-between items-center">
-                  <input type="checkbox" checked={_id in selected} onChange={() => toggleCategory(_id)} />
-                  <label>{name}</label>
-                  <button
-                    className="text-gray-200 hover:text-white p-2 rounded-full bg-gray-600/50 hover:bg-gray-700 transition-all"
-                    onClick={() => toggleExpand(_id)}
-                  >
-                    {expanded.has(_id) ? 'Collapse' : 'Expand'}
-                  </button>
-                </div>
-                {selected[_id] && expanded.has(_id) && (
-                  <div className="mt-2 p-2 text-left bg-gray-800 text-white border border-gray-600 rounded-md">
-                    {tags.map((tag) => (
-                      <div key={tag} className="mb-2">
-                        <input type="checkbox" checked={selected[_id]?.has(tag) || false} onChange={() => toggleTag(_id, tag)} />
-                        <label>{tag}</label>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-          <div className="mt-4">
-            <button
-              className="text-gray-200 hover:text-white p-2 rounded-full bg-gray-600/50 hover:bg-gray-700 transition-all mr-2"
-              onClick={toggleSelectAll}
-            >
-              {allSelected ? 'Clear All' : 'Select All'}
-            </button>
-          </div>
-        </div>
-      )}
-      <button
-        onClick={() => setIsCollapsed(!isCollapsed)}
-        className="mt-6 text-gray-200 hover:text-white p-2 rounded-full bg-gray-600/50 hover:bg-gray-700 transition-all"
-      >
-        {isCollapsed ? 'Show Filters' : 'Hide Filters'}
-      </button>
-    </div>
+      
     
      {/* Show Map */}
 
@@ -275,22 +265,13 @@ export default function AllListingsPage() {
       >
         {isMapCollapsed ? 'Show Map' : 'Hide Map'}
       </button> 
-
     </div>
-    
-
-    {/* Sort By */}
-
-            {/* <CategoryTagSelector></CategoryTagSelector> */}
           </div>
-          
         </div>
-        
       </div>
-    
-      
 
       {/* Main Content */}
+      
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
         
         {isLoading ? (
@@ -304,14 +285,14 @@ export default function AllListingsPage() {
             <p className="text-gray-400">Try adjusting your search or filters</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             
             {filteredListings.map((listing) => (
               <Link href={`/listing/${listing._id}`} key={listing._id}>
                 <div className="group bg-gray-800/50 backdrop-blur-lg rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300">
                   {/* Image Container */}
                   
-                  <div className="relative h-48 overflow-hidden">
+                  <div className="relative h-40 overflow-hidden">
                     
                     {listing.images && listing.images[0] ? (
                       <img
@@ -352,29 +333,27 @@ export default function AllListingsPage() {
                         </span>
                       </div>
                       <span className="text-purple-400 text-sm">
-                        View Details →
+                        View →
                       </span>
                     </div>
                   </div>
                 </div>
-               
               </Link>
             ))}
-        
           </div>
         )}
       </div>
-
-      {/* Floating Action Button for Create Listing */}
-      {user && (
-        <Link href="/listing/create">
-          <button className="fixed bottom-8 right-8 bg-gradient-to-r from-purple-500 to-blue-500 text-white p-4 rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
-            </svg>
-          </button>
-        </Link>
-      )}
     </div>
+    {/* Floating Action Button for Create Listing */}
+    {user && (
+      <Link href="/listing/create">
+        <button className="fixed bottom-8 right-8 bg-gradient-to-r from-purple-500 to-blue-500 text-white p-4 rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300">
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+          </svg>
+        </button>
+      </Link>
+    )}
+  </div>
   );
 }

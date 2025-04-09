@@ -287,7 +287,7 @@ export default function CreateListingPage() {
               <Map onSelectLocation={handleLocationSelect} /> 
 
               {selectedCoords && (
-                <p>Selected Coordinates: {selectedCoords[0]}, {selectedCoords[1]}</p>
+                <p>Exact Location: {selectedCoords[0]}, {selectedCoords[1]}</p>
               )}
             </div>
             </div>
