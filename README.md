@@ -19,26 +19,15 @@ Database                MongoDB Atlas
 Auth                    JWT
 Hosting                 Vercel, Render
 
-Colons can be used to align columns.
-
-| ------------- |:-------------:|
-| Components    | Next.js       |
-| Frontend      | Next.js       |
-| Backend       | Next.js (API routing) (https://nextjs.org/blog/building-apis-with-nextjs#11-create-a-nextjs-app)      |
-| Database      | MongoDB Atlas |
-| Auth          | JWT           |
-| Hosting       | Vercel, Render|
+| Component | Technology          |
+|-----------|---------------------|
+| Frontend  | Next.js             |
+| Backend   | Next.js (API routing)|                    |
+| Database  | MongoDB Atlas       |
+| Auth      | JWT                 |
+| Hosting   | Vercel, Render      |
 
 
-
-There must be at least 3 dashes separating each header cell.
-The outer pipes (|) are optional, and you don't need to make the 
-raw Markdown line up prettily. You can also use inline Markdown.
-
-Markdown | Less | Pretty
---- | --- | ---
-*Still* | `renders` | **nicely**
-1 | 2 | 3
 
 ## API Endpoints 
 
