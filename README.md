@@ -12,17 +12,10 @@ Barter is a community-driven marketplace application that allows users to trade 
 
 ## Technologies Used
 
-Component               Technology
-Frontend                Next.js
-Backend                 
-Database                MongoDB Atlas
-Auth                    JWT
-Hosting                 Vercel, Render
-
 | Component | Technology          |
 |-----------|---------------------|
 | Frontend  | Next.js             |
-| Backend   | Next.js (API routing)|                    |
+| Backend   | Next.js (API routing) (https://nextjs.org/blog/building-apis-with-nextjs#11-create-a-nextjs-app)|                    |
 | Database  | MongoDB Atlas       |
 | Auth      | JWT                 |
 | Hosting   | Vercel, Render      |
