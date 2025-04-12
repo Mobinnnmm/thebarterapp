@@ -85,7 +85,26 @@ Barter is a community-driven marketplace application that allows users to trade 
 - POST /api/email - Send a test email
   
   ### Categories Endpoint
-- GET /api/categories - Get all categories 
+- GET /api/categories - Get all categories
+
+# Installlation Requirements
+
+  - Todo:
+
+### Local Setup
+
+git clone https://github.com/Mobinnnmm/thebarterapp.git
+cd barter
+npm install
+npm run dev
+
+## Public Server:
+
+- TODO:
+
+## Test account credintials
+
+- TODO
 
 ## 🚀 Features
 
@@ -96,25 +115,4 @@ Barter is a community-driven marketplace application that allows users to trade 
 - Real-time updates and notifications
 - Ability to chat with other users
 
-## 🛠 Tech Stack
 
-- **Frontend:** [Next.js](https://nextjs.org/), [React](https://reactjs.org/)
-- **Styling:** Tailwind CSS
-- **Database:** MongoDB
-- **Authentication:** NextAuth
-
-## 📦 Getting Started
-
-### Prerequisites
-
-Make sure you have the following installed:
-- Node.js (v18 or higher)
-- npm or yarn
-
-### Installation
-
-```bash
-git clone https://github.com/Mobinnnmm/thebarterapp.git
-cd barter
-npm install
-npm run dev
