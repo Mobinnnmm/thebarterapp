@@ -187,63 +187,6 @@ export default function ListingDetails({ id, initialData }) {
     }
   };
 
-  // Update the Quick Actions section
-  const quickActions = (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-      {owner ? (
-        <Link href={`/user/${owner._id}`}>
-          <button className="w-full flex flex-col items-center justify-center p-4 bg-gray-700/30 rounded-lg hover:bg-gray-700/50 transition-all">
-            <span className="text-2xl mb-2">👁️</span>
-            <span className="text-sm text-gray-300">View Profile</span>
-          </button>
-        </Link>
-      ) : (
-        <button
-          className="flex flex-col items-center justify-center p-4 bg-gray-700/30 rounded-lg opacity-50 cursor-not-allowed"
-          disabled
-        >
-          <span className="text-2xl mb-2">👁️</span>
-          <span className="text-sm text-gray-300">View Profile</span>
-        </button>
-      )}
-
-      <button
-        onClick={handleChat}
-        disabled={!isItemAvailable}
-        className={`flex flex-col items-center justify-center p-4 bg-gray-700/30 rounded-lg ${
-          isItemAvailable 
-            ? 'hover:bg-gray-700/50 transition-all' 
-            : 'opacity-50 cursor-not-allowed'
-        }`}
-      >
-        <span className="text-2xl mb-2">💬</span>
-        <span className="text-sm text-gray-300">Chat</span>
-      </button>
-      <button
-        onClick={handleProposeTrade}
-        disabled={!isItemAvailable}
-        className={`flex flex-col items-center justify-center p-4 bg-gray-700/30 rounded-lg ${
-          isItemAvailable 
-            ? 'hover:bg-gray-700/50 transition-all' 
-            : 'opacity-50 cursor-not-allowed'
-        }`}
-      >
-        <span className="text-2xl mb-2">🔄</span>
-        <span className="text-sm text-gray-300">
-          {isItemAvailable ? 'Propose Trade' : 'Item Traded'}
-        </span>
-      </button>
-      <button
-        onClick={handleReport}
-        className="flex flex-col items-center justify-center p-4 bg-gray-700/30 rounded-lg hover:bg-gray-700/50 transition-all"
-      >
-        <span className="text-2xl mb-2">⚠️</span>
-        <span className="text-sm text-gray-300">Report</span>
-      </button>
-
-    </div>
-  );
-
   // Update the Action Buttons section
   const actionButtons = (
     <div className="flex flex-wrap gap-4">
@@ -267,7 +210,7 @@ export default function ListingDetails({ id, initialData }) {
       ) : (
         <>
           <button
-            onClick={handleContactOwner}
+            onClick={handleChat}
             disabled={!isItemAvailable}
             className={`flex-1 bg-gradient-to-r from-purple-500 to-blue-500 text-white px-6 py-3 rounded-lg font-medium transition-all transform ${
               isItemAvailable 
@@ -275,8 +218,8 @@ export default function ListingDetails({ id, initialData }) {
                 : 'opacity-50 cursor-not-allowed'
             }`}
           >
-            <span>💬</span>
-            <span>Contact Owner</span>
+            <span>💬 </span>
+            <span>Chat</span>
           </button>
           <button
             onClick={handleProposeTrade}
@@ -299,13 +242,7 @@ export default function ListingDetails({ id, initialData }) {
   // Update the Share and Report section
   const shareAndReport = (
     <div className="flex justify-center space-x-4 mt-8 pt-8 border-t border-gray-700">
-      <button
-        onClick={handleShare}
-        className="text-gray-400 hover:text-white transition-colors flex items-center space-x-2"
-      >
-        <span>📤</span>
-        <span>Share</span>
-      </button>
+
       <button
         onClick={handleReport}
         className="text-gray-400 hover:text-red-400 transition-colors flex items-center space-x-2"
@@ -466,7 +403,7 @@ export default function ListingDetails({ id, initialData }) {
               </div>
 
               {/* Quick Actions */}
-              {quickActions}
+              {/* {quickActions} */}
 
               {/* Contact Information */}
               <div className="bg-gray-700/30 rounded-lg p-6 mb-8">
