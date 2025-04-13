@@ -16,7 +16,7 @@ export async function POST(request) {
         
         // Send the email with verification code
         const data = await resend.emails.send({
-            from: 'Barter <onboarding@resend.dev>',
+            from: 'The Barter App <onboarding@thebarterapp.info>',
             to: email,
             subject: 'Verify your email for Barter',
             react: LinearLoginCodeEmail({ validationCode: code }),

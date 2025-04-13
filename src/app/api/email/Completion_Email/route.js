@@ -46,7 +46,7 @@ export async function POST(request) {
 
         // Send the email to the first user
         const data1 = await resend.emails.send({
-            from: 'Barter <onboarding@resend.dev>',
+            from: 'The Barter App <onboarding@thebarterapp.info>',
             to: email1,
             subject: 'Your Trade Has Been Completed!',
             react: CompletedTradeEmail(tradeInfo)
@@ -54,7 +54,7 @@ export async function POST(request) {
 
         // Send the email to the second user
         const data2 = await resend.emails.send({
-            from: 'Barter <onboarding@resend.dev>',
+            from: 'The Barter App <onboarding@thebarterapp.info>',
             to: email2,
             subject: 'Your Trade Has Been Completed!',
             react: CompletedTradeEmail(tradeInfo)

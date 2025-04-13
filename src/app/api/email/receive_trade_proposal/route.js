@@ -34,7 +34,7 @@ export async function POST(request) {
 
         // Send the email to the proposee
         const data = await resend.emails.send({
-            from: 'Barter <onboarding@resend.dev>',
+            from: 'The Barter App <onboarding@thebarterapp.info>',
             to: email,
             subject: ` ${proposer} wants to trade with you!`,
             react: ReceiveTradeOfferEmail(tradeInfo)
