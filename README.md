@@ -15,7 +15,7 @@ Barter is a community-driven marketplace application that allows users to trade 
 | Component | Technology          |
 |-----------|---------------------|
 | Frontend  | Next.js             |
-| Backend   | Next.js (API routing) (https://nextjs.org/blog/building-apis-with-nextjs#11-create-a-nextjs-app)|                    |
+| Backend   | Next.js (API routing) (https://nextjs.org/blog/building-apis-with-nextjs#11-create-a-nextjs-app)|
 | Database  | MongoDB Atlas       |
 | Auth      | JWT                 |
 | Hosting   | Vercel, Render      |
@@ -97,22 +97,69 @@ Barter is a community-driven marketplace application that allows users to trade 
 
 # Installlation Requirements
 
-  - Todo:
+  - Node
+  - MongoDB URI
+  - env variables
+  - cloudinary account
+  - public account (vercel, resend, render)
 
 ### Local Setup
 
+#### Step 1: Get the nextjs app
 git clone https://github.com/Mobinnnmm/thebarterapp.git
 cd barter
 npm install
+
+#### Step 2: Get the socket server from render
+git clone https://github.com/Mobinnnmm/barter-socket-server
+cd barter-socket-server
+npm install
 npm run dev
+
+cd ../thebarterapp
+
+npm run dev
+
+##### Step 3: Create an .env
+
+MONGODB_URI=
+
+JWT_SECRET=someSuperSecretKey
+
+
+
+# Email APIs
+RESEND_API_KEY=
+NEXT_PUBLIC_APP_URL=
+
+
+
+# Socketio APIs
+NEXT_PUBLIC_CHAT_SERVER_URL=
+
+NEXT_PUBLIC_SOCKET_SERVER_URL=
+
+
+CLOUDINARY_CLOUD_NAME=
+ 
+CLOUDINARY_API_KEY=
+ 
+CLOUDINARY_API_SECRET=
+
+
+ 
 
 ## Public Server:
 
-- TODO:
+- Frontend and backend both hosted on vercel
+- Socket server hosted on render (auto deployed)
 
 ## Test account credintials
 
-- TODO
+- email: labdulmobin@gmail.com
+- password: 123
+
+  
 
 ## 🚀 Features
 
