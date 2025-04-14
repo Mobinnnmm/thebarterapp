@@ -78,7 +78,7 @@ function NavBar() {
                   Dashboard
                 </Link>
 
-                {user.username == "group4" ? (
+                {user.username == "benny" ? (
                   <Link 
                     href="/adminDashboard" 
                     className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700/50 transition-all"

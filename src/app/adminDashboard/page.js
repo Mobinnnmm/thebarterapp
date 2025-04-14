@@ -26,8 +26,6 @@ export default function AdminDashboardPage() {
     fetchReports();
   }, []);
 
-  console.log(reports);
-
   const handleDelete = async (listingId, reportId) => {
     if (
       !window.confirm(
@@ -68,6 +66,7 @@ export default function AdminDashboardPage() {
       }
 
       alert("Item and report deleted successfully!");
+      window.location.reload();
     } catch (error) {
       console.error("Error deleting item/report:", error);
     }
