@@ -159,6 +159,12 @@ CLOUDINARY_API_SECRET=
 - email: labdulmobin@gmail.com
 - password: 123
 
+
+# Deviations from the SRS document: 
+
+#### There is only one deviation from what was proposed in PRJ566:
+- Functional requirement (4.1.3):  User can modify the original proposal and send it back to the proposing user // Wasn't applied
+
   
 
 ## 🚀 Features
